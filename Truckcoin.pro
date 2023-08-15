@@ -220,6 +220,8 @@ HEADERS += src/qt/bitcoingui.h \
     src/qt/splitthresholdfield.h \
     src/qt/stakereportdialog.h \
     src/hashblock.h \
+    src/crypto/common.h \
+    src/crypto/sha256.h \
     src/crypto/sph_blake.h \
     src/crypto/sph_skein.h \
     src/crypto/sph_keccak.h \
@@ -303,6 +305,7 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/noui.cpp \
     src/kernel.cpp \
     src/pbkdf2.cpp \
+    src/crypto/sha256.cpp \
     src/crypto/blake.c \
     src/crypto/bmw.c \
     src/crypto/groestl.c \

@@ -86,6 +86,7 @@ OBJS= \
     obj/noui.o \
     obj/kernel.o \
     obj/pbkdf2.o \
+    obj/crypto/sha256.o \
     obj/crypto/aes_helper.o \
     obj/crypto/cubehash.o \
     obj/crypto/luffa.o \
