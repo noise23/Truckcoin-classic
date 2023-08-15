@@ -88,6 +88,7 @@ OBJS= \
     obj/pbkdf2.o \
     obj/crypto/sha256.o \
     obj/crypto/hmac_sha256.o \
+    obj/crypto/ripemd160.o \
     obj/crypto/aes_helper.o \
     obj/crypto/cubehash.o \
     obj/crypto/luffa.o \
