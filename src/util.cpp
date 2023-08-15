@@ -5,6 +5,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "util.h"
+#include "cleanse.h"
 #include "db.h"
 #include "sync.h"
 #include "strlcpy.h"
@@ -32,7 +33,6 @@ namespace boost {
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
-#include <openssl/crypto.h>
 #include <openssl/rand.h>
 #include <stdarg.h>
 
@@ -180,7 +180,7 @@ void RandAddSeedPerfmon()
     if (ret == ERROR_SUCCESS)
     {
         RAND_add(pdata, nSize, nSize/100.0);
-        OPENSSL_cleanse(pdata, nSize);
+        memory_cleanse(pdata, nSize);
         printf("RandAddSeed() %lu bytes\n", nSize);
     }
 #endif
