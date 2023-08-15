@@ -224,6 +224,7 @@ HEADERS += src/qt/bitcoingui.h \
     src/crypto/sha256.h \
     src/crypto/hmac_sha256.h \
     src/crypto/ripemd160.h \
+    src/crypto/sha1.h \
     src/crypto/sph_blake.h \
     src/crypto/sph_skein.h \
     src/crypto/sph_keccak.h \
@@ -310,6 +311,7 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/crypto/sha256.cpp \
     src/crypto/hmac_sha256.cpp \
     src/crypto/ripemd160.cpp \
+    src/crypto/sha1.cpp \
     src/crypto/blake.c \
     src/crypto/bmw.c \
     src/crypto/groestl.c \
