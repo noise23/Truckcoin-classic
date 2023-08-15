@@ -130,6 +130,7 @@ OBJS= \
     obj/script.o \
     obj/sync.o \
     obj/util.o \
+    obj/hash.o \
     obj/wallet.o \
     obj/walletdb.o \
     obj/noui.o \
