@@ -1,16 +1,18 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2012 The Bitcoin developers
-// Copyright (c) 2013-2019 The Truckcoin developers
+// Copyright (c) 2013-2023 The Truckcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#include "init.h"
 #include "db.h"
 #include "walletdb.h"
 #include "bitcoinrpc.h"
 #include "net.h"
-#include "init.h"
 #include "util.h"
 #include "ui_interface.h"
 #include "checkpoints.h"
+#include "key.h"
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/convenience.hpp>
@@ -55,6 +57,8 @@ void StartShutdown()
 #endif
 }
 
+static boost::scoped_ptr<ECCVerifyHandle> globalVerifyHandle;
+
 void Shutdown(void* parg)
 {
     static CCriticalSection cs_Shutdown;
@@ -83,6 +87,8 @@ void Shutdown(void* parg)
         boost::filesystem::remove(GetPidFile());
         UnregisterWallet(pwalletMain);
         delete pwalletMain;
+        globalVerifyHandle.reset();
+        ECC_Stop();
         NewThread(ExitTimeout, NULL);
         MilliSleep(50);
         printf("Truckcoin exited\n\n");
@@ -307,7 +313,23 @@ std::string HelpMessage()
     return strUsage;
 }
 
-/** Initialize bitcoin.
+/** Sanity checks
+ *  Ensure that Truckcoin is running in a usable environment with all
+ *  necessary library support.
+ */
+bool InitSanityCheck(void)
+{
+    if(!ECC_InitSanityCheck()) {
+        InitError("Elliptic curve cryptography sanity check failure. Aborting.");
+        return false;
+    }
+
+    // TODO: remaining sanity checks, see #4081
+
+    return true;
+}
+
+/** Initialize Truckcoin.
  *  @pre Parameters should be parsed and config file should be read.
  */
 bool AppInit2()
@@ -460,6 +482,14 @@ bool AppInit2()
     fStaking = GetBoolArg("-staking", true);
 
     // ********************************************************* Step 4: application initialization: dir lock, daemonize, pidfile, debug log
+
+    // Initialize elliptic curve code
+    ECC_Start();
+    globalVerifyHandle.reset(new ECCVerifyHandle());
+
+    // Sanity check
+    if (!InitSanityCheck())
+        return InitError(_("Elliptic curve cryptography sanity check failed. Truckcoin is shutting down."));
 
     std::string strDataDir = GetDataDir().string();
     std::string strWalletFileName = GetArg("-wallet", "wallet.dat");

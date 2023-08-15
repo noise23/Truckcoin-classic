@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = truckcoin-qt
-VERSION = 10.0.1
+VERSION = 10.0.2
 INCLUDEPATH += src src/json src/qt
 DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE BOOST_THREAD_PROVIDES_GENERIC_SHARED_MUTEX_ON_WIN __STDC_FORMAT_MACROS
 CONFIG += no_include_pwd
@@ -182,7 +182,6 @@ HEADERS += src/qt/bitcoingui.h \
     src/hash.h \
     src/uint256.h \
     src/kernel.h \
-    src/scrypt_mine.h \
     src/pbkdf2.h \
     src/serialize.h \
     src/strlcpy.h \
@@ -190,6 +189,7 @@ HEADERS += src/qt/bitcoingui.h \
     src/miner.h \
     src/net.h \
     src/key.h \
+    src/pubkey.h \
     src/db.h \
     src/walletdb.h \
     src/script.h \
@@ -282,6 +282,7 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/hash.cpp \
     src/netbase.cpp \
     src/key.cpp \
+    src/pubkey.cpp \
     src/script.cpp \
     src/main.cpp \
     src/miner.cpp \
