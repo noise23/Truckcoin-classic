@@ -31,7 +31,6 @@ namespace boost {
 #include <boost/lexical_cast.hpp>
 #include <boost/variant/get.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/foreach.hpp>
 #include <boost/thread.hpp>
 #include <openssl/rand.h>
 #include <stdarg.h>
@@ -525,7 +524,7 @@ void ParseParameters(int argc, const char* const argv[])
     }
 
     // New 0.6 features:
-    BOOST_FOREACH(const PAIRTYPE(string,string)& entry, mapArgs)
+    for (const std::pair<std::string, std::string>& entry : mapArgs)
     {
         string name = entry.first;
 
