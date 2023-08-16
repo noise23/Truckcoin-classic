@@ -123,6 +123,7 @@ OBJS= \
     obj/base58.o \
     obj/script.o \
     obj/sync.o \
+    obj/random.o \
     obj/util.o \
     obj/hash.o \
     obj/wallet.o \
@@ -132,6 +133,7 @@ OBJS= \
     obj/pbkdf2.o \
     obj/crypto/sha256.o \
     obj/crypto/hmac_sha256.o \
+    obj/crypto/sha512.o \
     obj/crypto/ripemd160.o \
     obj/crypto/sha1.o \
     obj/crypto/aes_helper.o \

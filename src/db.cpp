@@ -676,7 +676,7 @@ bool CTxDB::LoadBlockIndex()
         {
             pair<unsigned int, unsigned int> pos = make_pair(pindex->nFile, pindex->nBlockPos);
             mapBlockPos[pos] = pindex;
-            BOOST_FOREACH(const CTransaction &tx, block.vtx)
+            for (const CTransaction &tx : block.vtx)
             {
                 uint256 hashTx = tx.GetHash();
                 CTxIndex txindex;
@@ -703,7 +703,7 @@ bool CTxDB::LoadBlockIndex()
                     unsigned int nOutput = 0;
                     if (nCheckLevel>3)
                     {
-                        BOOST_FOREACH(const CDiskTxPos &txpos, txindex.vSpent)
+                        for (const CDiskTxPos &txpos : txindex.vSpent)
                         {
                             if (!txpos.IsNull())
                             {
@@ -730,7 +730,7 @@ bool CTxDB::LoadBlockIndex()
                                     else
                                     {
                                         bool fFound = false;
-                                        BOOST_FOREACH(const CTxIn &txin, txSpend.vin)
+                                        for (const CTxIn &txin : txSpend.vin)
                                             if (txin.prevout.hash == hashTx && txin.prevout.n == nOutput)
                                                 fFound = true;
                                         if (!fFound)
@@ -748,7 +748,7 @@ bool CTxDB::LoadBlockIndex()
                 // check level 5: check whether all prevouts are marked spent
                 if (nCheckLevel>4)
                 {
-                     BOOST_FOREACH(const CTxIn &txin, tx.vin)
+                     for (const CTxIn &txin : tx.vin)
                      {
                           CTxIndex txindex;
                           if (ReadTxIndex(txin.prevout.hash, txindex))
@@ -775,8 +775,6 @@ bool CTxDB::LoadBlockIndex()
 
     return true;
 }
-
-
 
 bool CTxDB::LoadBlockIndexGuts()
 {
@@ -810,7 +808,7 @@ bool CTxDB::LoadBlockIndexGuts()
         {
             CDiskBlockIndex diskindex;
             ssValue >> diskindex;
-			
+
             uint256 blockHash = diskindex.GetBlockHash();
 
             // Construct block index object
@@ -855,15 +853,9 @@ bool CTxDB::LoadBlockIndexGuts()
     return true;
 }
 
-
-
-
-
 //
 // CAddrDB
 //
-
-
 CAddrDB::CAddrDB()
 {
     pathAddr = GetDataDir() / "peers.dat";
@@ -873,7 +865,7 @@ bool CAddrDB::Write(const CAddrMan& addr)
 {
     // Generate random temporary filename
     unsigned short randv = 0;
-    RAND_bytes((unsigned char *)&randv, sizeof(randv));
+    GetRandBytes((unsigned char *)&randv, sizeof(randv));
     std::string tmpfn = strprintf("peers.dat.%04x", randv);
 
     // serialize addresses, checksum data up to that point, then append csum

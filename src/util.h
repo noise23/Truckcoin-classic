@@ -137,8 +137,6 @@ extern bool fStaking;
 
 void MilliSleep(int64 nMilliSecs);
 
-void RandAddSeed();
-void RandAddSeedPerfmon();
 int ATTR_WARN_PRINTF(1,2) OutputDebugStringF(const char* pszFormat, ...);
 
 /*
@@ -207,9 +205,6 @@ void ReadConfigFile(std::map<std::string, std::string>& mapSettingsRet, std::map
 boost::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate = true);
 #endif
 void ShrinkDebugFile();
-int GetRandInt(int nMax);
-uint64 GetRand(uint64 nMax);
-uint256 GetRandHash();
 int64 GetTime();
 void SetMockTime(int64 nMockTimeIn);
 int64 GetAdjustedTime();
@@ -407,28 +402,6 @@ bool SoftSetArg(const std::string& strArg, const std::string& strValue);
  * @return true if argument gets set, false if it already had a value
  */
 bool SoftSetBoolArg(const std::string& strArg, bool fValue);
-
-/**
- * MWC RNG of George Marsaglia
- * This is intended to be fast. It has a period of 2^59.3, though the
- * least significant 16 bits only have a period of about 2^30.1.
- *
- * @return random value
- */
-extern uint32_t insecure_rand_Rz;
-extern uint32_t insecure_rand_Rw;
-static inline uint32_t insecure_rand(void)
-{
-  insecure_rand_Rz=36969*(insecure_rand_Rz&65535)+(insecure_rand_Rz>>16);
-  insecure_rand_Rw=18000*(insecure_rand_Rw&65535)+(insecure_rand_Rw>>16);
-  return (insecure_rand_Rw<<16)+insecure_rand_Rz;
-}
-
-/**
- * Seed insecure_rand using the random pool.
- * @param Deterministic Use a determinstic seed
- */
-void seed_insecure_rand(bool fDeterministic=false);
 
 /**
  * Timing-attack-resistant comparison.

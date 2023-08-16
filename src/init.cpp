@@ -829,8 +829,6 @@ bool AppInit2()
     if (fFirstRun)
     {
         // Create new keyUser and set as default key
-        RandAddSeedPerfmon();
-
         CPubKey newDefaultKey;
         if (!pwalletMain->GetKeyFromPool(newDefaultKey, false))
             strErrors << _("Cannot initialize keypool") << "\n";
@@ -908,8 +906,6 @@ bool AppInit2()
 
     if (!CheckDiskSpace())
         return false;
-
-    RandAddSeedPerfmon();
 
     //// debug print
     printf("mapBlockIndex.size() = %lu\n",   mapBlockIndex.size());

@@ -8,13 +8,12 @@
 
 #include <deque>
 #include <boost/array.hpp>
-#include <boost/foreach.hpp>
-#include <openssl/rand.h>
 
 #ifndef WIN32
 #include <arpa/inet.h>
 #endif
 
+#include "random.h"
 #include "mruset.h"
 #include "netbase.h"
 #include "protocol.h"
@@ -283,7 +282,7 @@ public:
         setInventoryKnown.max_size(SendBufferSize() / 1000);
 
         // Be shy and don't send version until we hear
-		// Don't announce non-peer CNodes
+        // Don't announce non-peer CNodes
         if (hSocket != INVALID_SOCKET && !fInbound)
             PushVersion();
     }
@@ -318,7 +317,7 @@ public:
     unsigned int GetTotalRecvSize()
     {
         unsigned int total = 0;
-        BOOST_FOREACH(const CNetMessage &msg, vRecvMsg) 
+        for (const CNetMessage &msg : vRecvMsg) 
             total += msg.vRecv.size() + 24;
         return total;
     }
@@ -330,7 +329,7 @@ public:
     void SetRecvVersion(int nVersionIn)
     {
         nRecvVersion = nVersionIn;
-        BOOST_FOREACH(CNetMessage &msg, vRecvMsg)
+        for (CNetMessage &msg : vRecvMsg)
             msg.SetVersion(nVersionIn);
     }
 
@@ -620,7 +619,7 @@ public:
                      void (*fn)(void*, CDataStream&), void* param1)
     {
         uint256 hashReply;
-        RAND_bytes((unsigned char*)&hashReply, sizeof(hashReply));
+        GetRandBytes((unsigned char*)&hashReply, sizeof(hashReply));
 
         {
             LOCK(cs_mapRequests);
@@ -635,7 +634,7 @@ public:
                      void (*fn)(void*, CDataStream&), void* param1)
     {
         uint256 hashReply;
-        RAND_bytes((unsigned char*)&hashReply, sizeof(hashReply));
+        GetRandBytes((unsigned char*)&hashReply, sizeof(hashReply));
 
         {
             LOCK(cs_mapRequests);
@@ -650,7 +649,7 @@ public:
                      void (*fn)(void*, CDataStream&), void* param1)
     {
         uint256 hashReply;
-        RAND_bytes((unsigned char*)&hashReply, sizeof(hashReply));
+        GetRandBytes((unsigned char*)&hashReply, sizeof(hashReply));
 
         {
             LOCK(cs_mapRequests);
@@ -685,7 +684,7 @@ public:
     static bool IsBanned(CNetAddr ip);
     bool Misbehaving(int howmuch); // 1 == a little, 100 == a lot
     void copyStats(CNodeStats &stats);
-	
+
     // Network stats 
     static void RecordBytesRecv(uint64 bytes); 
     static void RecordBytesSent(uint64 bytes); 
@@ -699,7 +698,7 @@ inline void RelayInventory(const CInv& inv)
     // Put on lists to offer to the other nodes
     {
         LOCK(cs_vNodes);
-        BOOST_FOREACH(CNode* pnode, vNodes)
+        for (CNode* pnode : vNodes)
             pnode->PushInventory(inv);
     }
 }

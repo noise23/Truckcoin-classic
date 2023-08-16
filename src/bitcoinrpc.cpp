@@ -60,7 +60,7 @@ void RPCTypeCheck(const Array& params,
                   bool fAllowNull)
 {
     unsigned int i = 0;
-    BOOST_FOREACH(Value_type t, typesExpected)
+    for (Value_type t : typesExpected)
     {
         if (params.size() <= i)
             break;
@@ -267,8 +267,8 @@ static const CRPCCommand vRPCCommands[] =
     { "resendtx",               &resendtx,               false,  true},
     { "makekeypair",            &makekeypair,            false,  true},
     { "sendalert",              &sendalert,              false,  false},
-    { "getstaking",            &getstaking,            true,   false },
-    { "setstaking",            &setstaking,            true,   false },
+    { "getstaking",             &getstaking,             true,   false },
+    { "setstaking",             &setstaking,             true,   false },
     { "getstakereport",         &getstakereport,         false,  false},
 };
 
@@ -525,7 +525,7 @@ bool ClientAllowed(const boost::asio::ip::address& address)
 
     const string strAddress = address.to_string();
     const vector<string>& vAllow = mapMultiArgs["-rpcallowip"];
-    BOOST_FOREACH(string strAllow, vAllow)
+    for (string strAllow : vAllow)
         if (WildcardMatch(strAddress, strAllow))
             return true;
     return false;
@@ -763,7 +763,7 @@ void ThreadRPCServer2(void* parg)
     if (mapArgs["-rpcpassword"] == "")
     {
         unsigned char rand_pwd[32];
-        RAND_bytes(rand_pwd, 32);
+        GetRandBytes(rand_pwd, 32);
         string strWhatAmI = "To use Truckcoind";
         if (mapArgs.count("-server"))
             strWhatAmI = strprintf(_("To use the %s option"), "\"-server\"");
@@ -1182,7 +1182,7 @@ void ConvertTo(Value& value, bool fAllowNull=false)
 Array RPCConvertValues(const std::string &strMethod, const std::vector<std::string> &strParams)
 {
     Array params;
-    BOOST_FOREACH(const std::string &param, strParams)
+    for (const std::string &param : strParams)
         params.push_back(param);
 
     int n = params.size();
