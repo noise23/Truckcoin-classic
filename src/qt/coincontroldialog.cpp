@@ -205,7 +205,7 @@ void CoinControlDialog::customSelectCoins()
     map<QString, vector<COutput> > mapCoins; 
     model->listCoins(mapCoins); 
  
-    for (std::pair<QString, vector<COutput>> coins : mapCoins) 
+    for (auto coins : mapCoins)
     { 
         QTreeWidgetItem *itemWalletAddress = new QTreeWidgetItem(); 
 
@@ -716,7 +716,7 @@ void CoinControlDialog::updateView()
     map<QString, vector<COutput> > mapCoins;
     model->listCoins(mapCoins);
 
-    for (std::pair<QString, vector<COutput>> coins : mapCoins)
+    for (auto coins : mapCoins)
     {
         QTreeWidgetItem *itemWalletAddress = new QTreeWidgetItem();
         QString sWalletAddress = coins.first;

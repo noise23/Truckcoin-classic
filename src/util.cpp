@@ -524,7 +524,7 @@ void ParseParameters(int argc, const char* const argv[])
     }
 
     // New 0.6 features:
-    for (const std::pair<std::string, std::string>& entry : mapArgs)
+    for (const auto& entry : mapArgs)
     {
         string name = entry.first;
 

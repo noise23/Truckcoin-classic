@@ -219,7 +219,7 @@ bool CAlert::ProcessAlert()
         }
 
         // Check if this alert has been cancelled
-        for (std::pair<const uint256, CAlert>& item : mapAlerts)
+        for (const auto& item : mapAlerts)
         {
             const CAlert& alert = item.second;
             if (alert.Cancels(*this))
