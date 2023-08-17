@@ -75,7 +75,7 @@ double GetPoSKernelPS(const CBlockIndex* blockindex)
 double GetPoWMHashPS(const CBlockIndex* blockindex)
 {
     int nPoWInterval = 72;
-    int64 nTargetSpacingWorkMin = 1, nTargetSpacingWork = 1;
+    int64_t nTargetSpacingWorkMin = 1, nTargetSpacingWork = 1;
 
     CBlockIndex* pindex = pindexGenesisBlock;
     CBlockIndex* pindexPrevWork = pindexGenesisBlock;
@@ -88,7 +88,7 @@ double GetPoWMHashPS(const CBlockIndex* blockindex)
     {
         if (pindex->IsProofOfWork())
         {
-            int64 nActualSpacingWork = pindex->GetBlockTime() - pindexPrevWork->GetBlockTime();
+            int64_t nActualSpacingWork = pindex->GetBlockTime() - pindexPrevWork->GetBlockTime();
             nTargetSpacingWork = ((nPoWInterval - 1) * nTargetSpacingWork + nActualSpacingWork + nActualSpacingWork) / (nPoWInterval + 1);
             nTargetSpacingWork = max(nTargetSpacingWork, nTargetSpacingWorkMin);
             pindexPrevWork = pindex;
@@ -126,7 +126,7 @@ Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool fPri
     result.push_back(Pair("flags", strprintf("%s%s", blockindex->IsProofOfStake()? "proof-of-stake" : "proof-of-work", blockindex->GeneratedStakeModifier()? " stake-modifier": "")));
     result.push_back(Pair("proofhash", blockindex->IsProofOfStake()? blockindex->hashProofOfStake.GetHex() : blockindex->GetBlockHash().GetHex()));
     result.push_back(Pair("entropybit", (int)blockindex->GetStakeEntropyBit()));
-    result.push_back(Pair("modifier", strprintf("%016llx", blockindex->nStakeModifier)));
+    result.push_back(Pair("modifier", strprintf("%016" PRIx64, blockindex->nStakeModifier)));
     result.push_back(Pair("modifierchecksum", strprintf("%08x", blockindex->nStakeModifierChecksum)));
     Array txinfo;
     for (const CTransaction& tx : block.vtx)

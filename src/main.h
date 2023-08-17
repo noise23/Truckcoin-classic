@@ -40,18 +40,18 @@ static const unsigned int MAX_ORPHAN_TRANSACTIONS = MAX_BLOCK_SIZE/100;
 /** The maximum number of entries in an 'inv' protocol message */
 static const unsigned int MAX_INV_SZ = 30000;
 /** Fees smaller than this (in satoshi) are considered zero fee (for transaction creation) */
-static const int64 MIN_TX_FEE = .00001 * COIN;
+static const int64_t MIN_TX_FEE = .00001 * COIN;
 /** Fees smaller than this (in satoshi) are considered zero fee (for relaying) */
-static const int64 MIN_RELAY_TX_FEE = .00001 * COIN;
+static const int64_t MIN_RELAY_TX_FEE = .00001 * COIN;
 /** No amount larger than this is valid */
-static const int64 MAX_MONEY = 60000000 * COIN;
-static const int64 MAX_MONEY2 = 60000000 * COIN;			// 60 mil
+static const int64_t MAX_MONEY = 60000000 * COIN;
+static const int64_t MAX_MONEY2 = 60000000 * COIN;			// 60 mil
 /** Base Rate for Proof of Stake Reward */
-static const int64 MAX_MINT_PROOF_OF_STAKE = 2.00 * COIN;	// 200% annual interest
+static const int64_t MAX_MINT_PROOF_OF_STAKE = 2.00 * COIN;	// 200% annual interest
 /** Split Threshold Default */ 
-static const int64 DEF_SPLIT_AMOUNT = 300 * COIN; 
+static const int64_t DEF_SPLIT_AMOUNT = 300 * COIN; 
 /** Split Threshold Max */
-static const int64 MAX_SPLIT_AMOUNT = 10000 * COIN; 
+static const int64_t MAX_SPLIT_AMOUNT = 10000 * COIN; 
 static const unsigned int FORK_TIME = 1418934203; // Thursday, 18 Dec 2014 20:23:23 GMT
 static const unsigned int FORK_TIME2 = 1420748603; // Thursday, 08 Jan 2015 20:23:23 GMT
 static const unsigned int DRIFT_SWITCH_TIME = 1519884366; // Thursday, 1 March 2018 06:06:06 GMT
@@ -59,9 +59,9 @@ static const unsigned int FIXED_REWARD_SWITCH_TIME = 1609459200; // Friday, 1 Ja
 
 static const int MAX_TIME_SINCE_BEST_BLOCK = 10; // how many seconds to wait before sending next PushGetBlocks()
 
-static const int64 MIN_TXOUT_AMOUNT = MIN_TX_FEE;
+static const int64_t MIN_TXOUT_AMOUNT = MIN_TX_FEE;
 
-inline bool MoneyRange(int64 nValue) { return (nValue >= 0 && nValue <= MAX_MONEY); }
+inline bool MoneyRange(int64_t nValue) { return (nValue >= 0 && nValue <= MAX_MONEY); }
 // Threshold for nLockTime: below this value it is interpreted as block number, otherwise as UNIX timestamp.
 static const unsigned int LOCKTIME_THRESHOLD = 500000000; // Tue Nov  5 00:53:20 1985 UTC
 
@@ -74,7 +74,7 @@ static const int fHaveUPnP = false;
 static const uint256 hashGenesisBlockOfficial("0x000005fe04e512585c3611369c7ce23f130958038c18a462577d002680dab4fc");
 static const uint256 hashGenesisBlockTestNet ("0x0000076130e1a816bab8f26310839ab601305b2315dc3b8b1a250faa0cb1f9a8");
 
-inline int64 PastDrift(int64 nTime)   
+inline int64_t PastDrift(int64_t nTime)   
 {
     if (nTime > DRIFT_SWITCH_TIME)
         return nTime - 60; // up to 1 minute from the past
@@ -82,7 +82,7 @@ inline int64 PastDrift(int64 nTime)
         return nTime - 15 * 60; // up to 15 minutes from the past
 }
 
-inline int64 FutureDrift(int64 nTime) 
+inline int64_t FutureDrift(int64_t nTime) 
 {
     if (nTime > DRIFT_SWITCH_TIME)
         return nTime + 60; // up to 1 minute from the future
@@ -105,13 +105,13 @@ extern uint256 nBestChainTrust;
 extern uint256 hashBestChain;
 extern CBlockIndex* pindexBest;
 extern unsigned int nTransactionsUpdated;
-extern uint64 nLastBlockTx;
-extern uint64 nLastBlockSize;
-extern int64 nLastCoinStakeSearchInterval;
+extern uint64_t nLastBlockTx;
+extern uint64_t nLastBlockSize;
+extern int64_t nLastCoinStakeSearchInterval;
 extern const std::string strMessageMagic;
 extern double dHashesPerSec;
-extern int64 nHPSTimerStart;
-extern int64 nTimeBestReceived;
+extern int64_t nHPSTimerStart;
+extern int64_t nTimeBestReceived;
 extern CCriticalSection cs_setpwalletRegistered;
 extern std::set<CWallet*> setpwalletRegistered;
 extern unsigned char pchMessageStart[4];
@@ -119,11 +119,11 @@ extern std::map<uint256, CBlock*> mapOrphanBlocks;
 extern std::map<unsigned int, unsigned int> mapHashedBlocks;
 
 // Settings
-extern int64 nTransactionFee;
-extern int64 nSplitThreshold;
+extern int64_t nTransactionFee;
+extern int64_t nSplitThreshold;
 
 // Minimum disk space required - used in CheckDiskSpace()
-static const uint64 nMinDiskSpace = 52428800;
+static const uint64_t nMinDiskSpace = 52428800;
 
 class CReserveKey;
 class CTxDB;
@@ -134,7 +134,7 @@ void UnregisterWallet(CWallet* pwalletIn);
 void SyncWithWallets(const CTransaction& tx, const CBlock* pblock = NULL, bool fUpdate = false, bool fConnect = true);
 bool ProcessBlock(CNode* pfrom, CBlock* pblock);
 bool ProcessBlock(CNode* pfrom, CBlock* pblock, std::string& strErr);
-bool CheckDiskSpace(uint64 nAdditionalBytes=0);
+bool CheckDiskSpace(uint64_t nAdditionalBytes=0);
 FILE* OpenBlockFile(unsigned int nFile, unsigned int nBlockPos, const char* pszMode="rb");
 FILE* AppendBlockFile(unsigned int& nFileRet);
 bool LoadBlockIndex(bool fAllowNew=true);
@@ -146,13 +146,13 @@ bool LoadExternalBlockFile(FILE* fileIn);
 void GenerateBitcoins(bool fGenerate, CWallet* pwallet);
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake);
 bool CheckProofOfWork(uint256 hash, unsigned int nBits);
-int64 GetProofOfWorkReward(int nHeight, int64 nFees, uint256 prevHash);
-int64 GetProofOfStakeReward(int64 nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight, bool bCoinYearOnly);
-int64 GetProofOfStakeRewardV1(int64 nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight, bool bCoinYearOnly);
-int64 GetProofOfStakeRewardV2(int64 nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight, bool bCoinYearOnly);
-int64 GetProofOfStakeRewardV3(int64 nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight, bool bCoinYearOnly);
-unsigned int ComputeMinWork(unsigned int nBase, int64 nTime);
-unsigned int ComputeMinStake(unsigned int nBase, int64 nTime, unsigned int nBlockTime);
+int64_t GetProofOfWorkReward(int nHeight, int64_t nFees, uint256 prevHash);
+int64_t GetProofOfStakeReward(int64_t nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight, bool bCoinYearOnly);
+int64_t GetProofOfStakeRewardV1(int64_t nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight, bool bCoinYearOnly);
+int64_t GetProofOfStakeRewardV2(int64_t nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight, bool bCoinYearOnly);
+int64_t GetProofOfStakeRewardV3(int64_t nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight, bool bCoinYearOnly);
+unsigned int ComputeMinWork(unsigned int nBase, int64_t nTime);
+unsigned int ComputeMinStake(unsigned int nBase, int64_t nTime, unsigned int nBlockTime);
 int GetNumBlocksOfPeers();
 bool IsInitialBlockDownload();
 std::string GetWarnings(std::string strFor);
@@ -353,7 +353,7 @@ public:
 class CTxOut
 {
 public:
-    int64 nValue;
+    int64_t nValue;
     CScript scriptPubKey;
 
     CTxOut()
@@ -361,7 +361,7 @@ public:
         SetNull();
     }
 
-    CTxOut(int64 nValueIn, CScript scriptPubKeyIn)
+    CTxOut(int64_t nValueIn, CScript scriptPubKeyIn)
     {
         nValue = nValueIn;
         scriptPubKey = scriptPubKeyIn;
@@ -492,7 +492,7 @@ public:
         return SerializeHash(*this);
     }
 
-    bool IsFinal(int nBlockHeight=0, int64 nBlockTime=0) const
+    bool IsFinal(int nBlockHeight=0, int64_t nBlockTime=0) const
     {
         // Time based nLockTime implemented in 0.1.6
         if (nLockTime == 0)
@@ -501,7 +501,7 @@ public:
             nBlockHeight = nBestHeight;
         if (nBlockTime == 0)
             nBlockTime = GetAdjustedTime();
-        if ((int64)nLockTime < ((int64)nLockTime < LOCKTIME_THRESHOLD ? (int64)nBlockHeight : nBlockTime))
+        if ((int64_t)nLockTime < ((int64_t)nLockTime < LOCKTIME_THRESHOLD ? (int64_t)nBlockHeight : nBlockTime))
             return true;
         for (const CTxIn& txin : vin)
             if (!txin.IsFinal())
@@ -583,9 +583,9 @@ public:
     /** Amount of bitcoins spent by this transaction.
         @return sum of all outputs (note: does not include fees)
      */
-    int64 GetValueOut() const
+    int64_t GetValueOut() const
     {
-        int64 nValueOut = 0;
+        int64_t nValueOut = 0;
         for (const CTxOut& txout : vout)
         {
             nValueOut += txout.nValue;
@@ -603,7 +603,7 @@ public:
         @return	Sum of value of all inputs (scriptSigs)
         @see CTransaction::FetchInputs
      */
-    int64 GetValueIn(const MapPrevTx& mapInputs) const;
+    int64_t GetValueIn(const MapPrevTx& mapInputs) const;
 
     static bool AllowFree(double dPriority)
     {
@@ -612,7 +612,7 @@ public:
         return dPriority > COIN * 960 / 250;
     }
 
-    int64 GetMinFee(unsigned int nBlockSize=1, bool fAllowFree=false, enum GetMinFee_mode mode=GMF_BLOCK, unsigned int nBytes = 0) const;
+    int64_t GetMinFee(unsigned int nBlockSize=1, bool fAllowFree=false, enum GetMinFee_mode mode=GMF_BLOCK, unsigned int nBytes = 0) const;
 
     bool ReadFromDisk(CDiskTxPos pos, FILE** pfileRet=NULL)
     {
@@ -723,7 +723,7 @@ public:
     bool ClientConnectInputs();
     bool CheckTransaction() const;
     bool AcceptToMemoryPool(CTxDB& txdb, bool fCheckInputs=true, bool* pfMissingInputs=NULL);
-    bool GetCoinAge(CTxDB& txdb, uint64& nCoinAge) const;  // get transaction coin age
+    bool GetCoinAge(CTxDB& txdb, uint64_t& nCoinAge) const;  // get transaction coin age
 
 protected:
     const CTxOut& GetOutputFor(const CTxIn& input, const MapPrevTx& inputs) const;
@@ -736,17 +736,17 @@ private:
     CTxOut &txout;
 
 public:
-    static uint64 CompressAmount(uint64 nAmount);
-    static uint64 DecompressAmount(uint64 nAmount);
+    static uint64_t CompressAmount(uint64_t nAmount);
+    static uint64_t DecompressAmount(uint64_t nAmount);
 
     CTxOutCompressor(CTxOut &txoutIn) : txout(txoutIn) { }
 
     IMPLEMENT_SERIALIZE(({
         if (!fRead) {
-            uint64 nVal = CompressAmount(txout.nValue);
+            uint64_t nVal = CompressAmount(txout.nValue);
             READWRITE(VARINT(nVal));
         } else {
-            uint64 nVal = 0;
+            uint64_t nVal = 0;
             READWRITE(VARINT(nVal));
             txout.nValue = DecompressAmount(nVal);
         }
@@ -1205,9 +1205,9 @@ public:
             return Hash9(BEGIN(nVersion), END(nNonce));
     }
 
-    int64 GetBlockTime() const
+    int64_t GetBlockTime() const
     {
-        return (int64)nTime;
+        return (int64_t)nTime;
     }
 
     void UpdateTime(const CBlockIndex* pindexPrev);
@@ -1216,7 +1216,7 @@ public:
     unsigned int GetStakeEntropyBit(unsigned int nHeight) const
     {
         // Take last bit of block hash as entropy bit
-        unsigned int nEntropyBit = ((GetHash().Get64()) & 1llu);
+        unsigned int nEntropyBit = ((GetHash().Get64()) & 1ULL);
         if (fDebug && GetBoolArg("-printstakemodifier"))
             printf("GetStakeEntropyBit: nHeight=%u hashBlock=%s nEntropyBit=%u\n", nHeight, GetHash().ToString().c_str(), nEntropyBit);
         return nEntropyBit;
@@ -1239,11 +1239,11 @@ public:
     }
 
     // get max transaction timestamp
-    int64 GetMaxTransactionTime() const
+    int64_t GetMaxTransactionTime() const
     {
-        int64 maxTransactionTime = 0;
+        int64_t maxTransactionTime = 0;
         for (const CTransaction& tx : vtx)
-            maxTransactionTime = std::max(maxTransactionTime, (int64)tx.nTime);
+            maxTransactionTime = std::max(maxTransactionTime, (int64_t)tx.nTime);
         return maxTransactionTime;
     }
 
@@ -1379,7 +1379,7 @@ public:
     bool AddToBlockIndex(unsigned int nFile, unsigned int nBlockPos);
     bool CheckBlock(bool fCheckPOW=true, bool fCheckMerkleRoot=true, bool fCheckSig=true) const;
     bool AcceptBlock();
-    bool GetCoinAge(uint64& nCoinAge) const; // calculate total coin age spent in block
+    bool GetCoinAge(uint64_t& nCoinAge) const; // calculate total coin age spent in block
     bool SignBlock(const CKeyStore& keystore);
     bool CheckBlockSignature() const;
 
@@ -1405,8 +1405,8 @@ public:
     uint256 nChainTrust; // trust score of block chain
     int nHeight;
 
-    int64 nMint;
-    int64 nMoneySupply;
+    int64_t nMint;
+    int64_t nMoneySupply;
 
     unsigned int nFlags;  // block index flags
     enum  
@@ -1416,7 +1416,7 @@ public:
         BLOCK_STAKE_MODIFIER = (1 << 2), // regenerated stake modifier
     };
 
-    uint64 nStakeModifier; // hash modifier for proof-of-stake
+    uint64_t nStakeModifier; // hash modifier for proof-of-stake
     unsigned int nStakeModifierChecksum; // checksum of index; in-memeory only
 
     // proof-of-stake specific fields
@@ -1508,9 +1508,9 @@ public:
         return *phashBlock;
     }
 
-    int64 GetBlockTime() const
+    int64_t GetBlockTime() const
     {
-        return (int64)nTime;
+        return (int64_t)nTime;
     }
 
     uint256 GetBlockTrust() const;
@@ -1522,11 +1522,11 @@ public:
 
     enum { nMedianTimeSpan=11 };
 
-    int64 GetMedianTimePast() const
+    int64_t GetMedianTimePast() const
     {
-        int64 pmedian[nMedianTimeSpan];
-        int64* pbegin = &pmedian[nMedianTimeSpan];
-        int64* pend = &pmedian[nMedianTimeSpan];
+        int64_t pmedian[nMedianTimeSpan];
+        int64_t* pbegin = &pmedian[nMedianTimeSpan];
+        int64_t* pend = &pmedian[nMedianTimeSpan];
 
         const CBlockIndex* pindex = this;
         for (int i = 0; i < nMedianTimeSpan && pindex; i++, pindex = pindex->pprev)
@@ -1536,7 +1536,7 @@ public:
         return pbegin[(pend - pbegin)/2];
     }
 
-    int64 GetMedianTime() const
+    int64_t GetMedianTime() const
     {
         const CBlockIndex* pindex = this;
         for (int i = 0; i < nMedianTimeSpan/2; i++)
@@ -1588,7 +1588,7 @@ public:
         return (nFlags & BLOCK_STAKE_MODIFIER);
     }
 
-    void SetStakeModifier(uint64 nModifier, bool fGeneratedStakeModifier)
+    void SetStakeModifier(uint64_t nModifier, bool fGeneratedStakeModifier)
     {
         nStakeModifier = nModifier;
         if (fGeneratedStakeModifier)
@@ -1597,7 +1597,7 @@ public:
 
     std::string ToString() const
     {
-        return strprintf("CBlockIndex(nprev=%p, pnext=%p, nFile=%u, nBlockPos=%-6d nHeight=%d, nMint=%s, nMoneySupply=%s, nFlags=(%s)(%d)(%s), nStakeModifier=%016llu, nStakeModifierChecksum=%08x, hashProofOfStake=%s, prevoutStake=(%s), nStakeTime=%d merkle=%s, hashBlock=%s)",
+        return strprintf("CBlockIndex(nprev=%p, pnext=%p, nFile=%u, nBlockPos=%-6d nHeight=%d, nMint=%s, nMoneySupply=%s, nFlags=(%s)(%d)(%s), nStakeModifier=%016" PRIx64", nStakeModifierChecksum=%08x, hashProofOfStake=%s, prevoutStake=(%s), nStakeTime=%d merkle=%s, hashBlock=%s)",
             pprev, pnext, nFile, nBlockPos, nHeight,
             FormatMoney(nMint).c_str(), FormatMoney(nMoneySupply).c_str(),
             GeneratedStakeModifier() ? "MOD" : "-", GetStakeEntropyBit(), IsProofOfStake()? "PoS" : "PoW",

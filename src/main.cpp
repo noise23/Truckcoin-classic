@@ -45,7 +45,7 @@ unsigned int nStakeMinAge = 60 * 60 * 8;	// minimum age for coin age: 3h
 unsigned int nStakeMaxAge = 60 * 60 * 24 * 30;	// stake age of full weight: -1
 unsigned int nStakeTargetSpacing = 90;			// 90 sec block spacing
 
-int64 nChainStartTime = 1399495660;
+int64_t nChainStartTime = 1399495660;
 int nCoinbaseMaturity = 160;
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
@@ -53,7 +53,7 @@ uint256 nBestChainTrust = 0;
 CBlockIndex *pindexBestInvalid;
 uint256 hashBestChain = 0;
 CBlockIndex* pindexBest = NULL;
-int64 nTimeBestReceived = 0;
+int64_t nTimeBestReceived = 0;
 
 CMedianFilter<int> cPeerBlockCounts(8, 0); // Amount of blocks that other nodes claim to have
 
@@ -71,11 +71,11 @@ CScript COINBASE_FLAGS;
 const string strMessageMagic = "Truckcoin Signed Message:\n";
 
 double dHashesPerSec;
-int64 nHPSTimerStart;
+int64_t nHPSTimerStart;
 
 // Settings
-int64 nTransactionFee = MIN_TX_FEE;
-int64 nSplitThreshold = DEF_SPLIT_AMOUNT;
+int64_t nTransactionFee = MIN_TX_FEE;
+int64_t nSplitThreshold = DEF_SPLIT_AMOUNT;
 extern enum Checkpoints::CPMode CheckpointsMode;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -447,7 +447,7 @@ bool CTransaction::CheckTransaction() const
         return DoS(100, error("CTransaction::CheckTransaction() : size limits failed"));
 
     // Check for negative or overflow output values
-    int64 nValueOut = 0;
+    int64_t nValueOut = 0;
     for (unsigned int i = 0; i < vout.size(); i++)
     {
         const CTxOut& txout = vout[i];
@@ -489,14 +489,14 @@ bool CTransaction::CheckTransaction() const
     return true;
 }
 
-int64 CTransaction::GetMinFee(unsigned int nBlockSize, bool fAllowFree,
+int64_t CTransaction::GetMinFee(unsigned int nBlockSize, bool fAllowFree,
                               enum GetMinFee_mode mode, unsigned int nBytes) const
 {
     // Base fee is either MIN_TX_FEE or MIN_RELAY_TX_FEE
-    int64 nBaseFee = (mode == GMF_RELAY) ? MIN_RELAY_TX_FEE : MIN_TX_FEE;
+    int64_t nBaseFee = (mode == GMF_RELAY) ? MIN_RELAY_TX_FEE : MIN_TX_FEE;
 
     unsigned int nNewBlockSize = nBlockSize + nBytes;
-    int64 nMinFee = (1 + (int64)nBytes / 1000) * nBaseFee;
+    int64_t nMinFee = (1 + (int64_t)nBytes / 1000) * nBaseFee;
 
     // To limit dust spam, require MIN_TX_FEE/MIN_RELAY_TX_FEE if any output is less than 0.01
     if (nMinFee < nBaseFee)
@@ -601,13 +601,13 @@ bool CTxMemPool::accept(CTxDB& txdb, CTransaction &tx, bool fCheckInputs,
         // you should add code here to check that the transaction does a
         // reasonable number of ECDSA signature verifications.
 
-        int64 nFees = tx.GetValueIn(mapInputs)-tx.GetValueOut();
+        int64_t nFees = tx.GetValueIn(mapInputs)-tx.GetValueOut();
         unsigned int nSize = ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
 
         // Don't accept it if it can't get into a block
-        int64 txMinFee = tx.GetMinFee(1000, false, GMF_RELAY, nSize);
+        int64_t txMinFee = tx.GetMinFee(1000, false, GMF_RELAY, nSize);
         if (nFees < txMinFee)
-            return error("CTxMemPool::accept() : not enough fees %s, %lld < %lld",
+            return error("CTxMemPool::accept() : not enough fees %s, %" PRId64 " < %" PRId64 "",
                          hash.ToString().c_str(),
                          nFees, txMinFee);
 
@@ -618,8 +618,8 @@ bool CTxMemPool::accept(CTxDB& txdb, CTransaction &tx, bool fCheckInputs,
         {
             static CCriticalSection cs;
             static double dFreeCount;
-            static int64 nLastTime;
-            int64 nNow = GetTime();
+            static int64_t nLastTime;
+            int64_t nNow = GetTime();
 
             {
                 LOCK(cs);
@@ -901,9 +901,9 @@ int generateMTRandom(unsigned int s, int range)
 }
 
 // miner's coin base reward based on nBits
-int64 GetProofOfWorkReward(int nHeight, int64 nFees, uint256 prevHash)
+int64_t GetProofOfWorkReward(int nHeight, int64_t nFees, uint256 prevHash)
 {
-    int64 nSubsidy = 500 * COIN;
+    int64_t nSubsidy = 500 * COIN;
 
 	if(nHeight == 1)
 	{
@@ -914,9 +914,9 @@ int64 GetProofOfWorkReward(int nHeight, int64 nFees, uint256 prevHash)
     return nSubsidy + nFees;
 }
 
-int64 GetProofOfStakeReward(int64 nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight, bool bCoinYearOnly)
+int64_t GetProofOfStakeReward(int64_t nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight, bool bCoinYearOnly)
 {
-	int64 nSubsidy = 0;
+	int64_t nSubsidy = 0;
 
 	if ( nTime > FIXED_REWARD_SWITCH_TIME )
 	{
@@ -935,35 +935,35 @@ int64 GetProofOfStakeReward(int64 nCoinAge, unsigned int nBits, unsigned int nTi
 	return nSubsidy;
 }	
 
-int64 GetProofOfStakeRewardV1(int64 nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight, bool bCoinYearOnly)
+int64_t GetProofOfStakeRewardV1(int64_t nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight, bool bCoinYearOnly)
 {
-    int64 nRewardCoinYear;
+    int64_t nRewardCoinYear;
 
 	nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
 
 // miner's coin stake reward based on nBits and coin age spent (coin-days)
 // simple algorithm, not depend on the diff
 	
-    int64 nSubsidy = nCoinAge * nRewardCoinYear / 365;
+    int64_t nSubsidy = nCoinAge * nRewardCoinYear / 365;
 	
     if(bCoinYearOnly)
     return nRewardCoinYear / CENT;
 
 	if (fDebug && GetBoolArg("-printcreation"))
-        printf("GetProofOfStakeReward(): create=%s nCoinAge=%lld nBits=%d\n", FormatMoney(nSubsidy).c_str(), nCoinAge, nBits);
+        printf("GetProofOfStakeReward(): create=%s nCoinAge=%" PRId64 " nBits=%d\n", FormatMoney(nSubsidy).c_str(), nCoinAge, nBits);
     return nSubsidy;
 }
 
-int64 GetProofOfStakeRewardV2(int64 nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight, bool bCoinYearOnly)
+int64_t GetProofOfStakeRewardV2(int64_t nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight, bool bCoinYearOnly)
 {
- int64 nRewardCoinYear;
+ int64_t nRewardCoinYear;
 
  CBigNum bnRewardCoinYearLimit = MAX_MINT_PROOF_OF_STAKE; // Base stake mint rate, 200% year interest
  CBigNum bnTarget;
  bnTarget.SetCompact(nBits);
  CBigNum bnTargetLimit = bnProofOfStakeLimit;
  bnTargetLimit.SetCompact(bnTargetLimit.GetCompact());
- int64 nSubsidyLimit = 200 * COIN;
+ int64_t nSubsidyLimit = 200 * COIN;
 
  // Reward for coin-year is cut in half every 64x multiply of PoS difficulty
  // A reasonably continuous curve is used to avoid shock to market
@@ -979,7 +979,7 @@ int64 GetProofOfStakeRewardV2(int64 nCoinAge, unsigned int nBits, unsigned int n
  {
  CBigNum bnMidValue = (bnLowerBound + bnUpperBound) / 2;
  if (fDebug && GetBoolArg("-printcreation"))
- printf("GetProofOfStakeReward() : lower=%lld upper=%lld mid=%lld\n", bnLowerBound.getuint64(), bnUpperBound.getuint64(), bnMidValue.getuint64());
+ printf("GetProofOfStakeReward() : lower=%" PRId64 " upper=%" PRId64 " mid=%" PRId64 "\n", bnLowerBound.getuint64(), bnUpperBound.getuint64(), bnMidValue.getuint64());
  if (bnMidValue * bnMidValue * bnMidValue * bnMidValue * bnTargetLimit > bnRewardCoinYearLimit * bnRewardCoinYearLimit * bnRewardCoinYearLimit * bnRewardCoinYearLimit * bnTarget)
  bnUpperBound = bnMidValue;
  else
@@ -992,20 +992,20 @@ int64 GetProofOfStakeRewardV2(int64 nCoinAge, unsigned int nBits, unsigned int n
  if(bCoinYearOnly)
  return nRewardCoinYear / CENT;
 
-  int64 nSubsidy = (nCoinAge * 33 * nRewardCoinYear) / (365 * 33 + 8);
+  int64_t nSubsidy = (nCoinAge * 33 * nRewardCoinYear) / (365 * 33 + 8);
 
   if (fDebug && GetBoolArg("-printcreation"))
- printf("GetProofOfStakeReward(): create=%s nCoinAge=%lld nBits=%d\n", FormatMoney(nSubsidy).c_str(), nCoinAge, nBits);
+ printf("GetProofOfStakeReward(): create=%s nCoinAge=%" PRId64 " nBits=%d\n", FormatMoney(nSubsidy).c_str(), nCoinAge, nBits);
  
  nSubsidy = min(nSubsidy, nSubsidyLimit);
  
  return nSubsidy;
 }
 
-int64 GetProofOfStakeRewardV3(int64 nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight, bool bCoinYearOnly)
+int64_t GetProofOfStakeRewardV3(int64_t nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight, bool bCoinYearOnly)
 {
-    int64 nRewardCoinYear;
-	int64 nSubsidyLimit = 0;
+    int64_t nRewardCoinYear;
+	int64_t nSubsidyLimit = 0;
 	
 	if ( nTime > 1596240000 ) // Saturday, 1 August 2020 00:00:00 GMT
 		nSubsidyLimit = 50 * COIN;
@@ -1021,27 +1021,27 @@ int64 GetProofOfStakeRewardV3(int64 nCoinAge, unsigned int nBits, unsigned int n
 // miner's coin stake reward based on nBits and coin age spent (coin-days)
 // simple algorithm, not depend on the diff
 	
-    int64 nSubsidy = (nCoinAge * 33 * nRewardCoinYear) / (365 * 33 + 8);
+    int64_t nSubsidy = (nCoinAge * 33 * nRewardCoinYear) / (365 * 33 + 8);
 	
     if(bCoinYearOnly)
     return nSubsidyLimit / 1000000;
 
 	if (fDebug && GetBoolArg("-printcreation"))
-        printf("GetProofOfStakeReward(): create=%s nCoinAge=%lld nBits=%d\n", FormatMoney(nSubsidy).c_str(), nCoinAge, nBits);
+        printf("GetProofOfStakeReward(): create=%s nCoinAge=%" PRId64 " nBits=%d\n", FormatMoney(nSubsidy).c_str(), nCoinAge, nBits);
 		
     nSubsidy = min(nSubsidy, nSubsidyLimit);
 		
     return nSubsidy;
 }
 
-static const int64 nTargetTimespan = 60 * 60;
-static const int64 nTargetSpacingWorkMax = 2 * nStakeTargetSpacing; 
+static const int64_t nTargetTimespan = 60 * 60;
+static const int64_t nTargetSpacingWorkMax = 2 * nStakeTargetSpacing; 
 
 //
 // maximum nBits value could possible be required nTime after
 // minimum proof-of-work required was nBase
 //
-unsigned int ComputeMaxBits(CBigNum bnTargetLimit, unsigned int nBase, int64 nTime)
+unsigned int ComputeMaxBits(CBigNum bnTargetLimit, unsigned int nBase, int64_t nTime)
 {
     CBigNum bnResult;
     bnResult.SetCompact(nBase);
@@ -1061,7 +1061,7 @@ unsigned int ComputeMaxBits(CBigNum bnTargetLimit, unsigned int nBase, int64 nTi
 // minimum amount of work that could possibly be required nTime after
 // minimum proof-of-work required was nBase
 //
-unsigned int ComputeMinWork(unsigned int nBase, int64 nTime)
+unsigned int ComputeMinWork(unsigned int nBase, int64_t nTime)
 {
     return ComputeMaxBits(bnProofOfWorkLimit, nBase, nTime);
 }
@@ -1070,7 +1070,7 @@ unsigned int ComputeMinWork(unsigned int nBase, int64 nTime)
 // minimum amount of stake that could possibly be required nTime after
 // minimum proof-of-stake required was nBase
 //
-unsigned int ComputeMinStake(unsigned int nBase, int64 nTime, unsigned int nBlockTime)
+unsigned int ComputeMinStake(unsigned int nBase, int64_t nTime, unsigned int nBlockTime)
 {
     return ComputeMaxBits(bnProofOfStakeLimit, nBase, nTime);
 }
@@ -1103,15 +1103,15 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
     if (pindexPrevPrev->pprev == NULL)
         return bnTargetLimit.GetCompact(); // second block
 
-    int64 nActualSpacing = pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime();
+    int64_t nActualSpacing = pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime();
 	if(nActualSpacing < 0)
 	{
-		// printf(">> nActualSpacing = %lld corrected to 1.\n", nActualSpacing);
+		// printf(">> nActualSpacing = %" PRId64 " corrected to 1.\n", nActualSpacing);
 		nActualSpacing = 1;
 	}
 	else if(nActualSpacing > nTargetTimespan)
 	{
-		// printf(">> nActualSpacing = %lld corrected to nTargetTimespan (900).\n", nActualSpacing);
+		// printf(">> nActualSpacing = %" PRId64 " corrected to nTargetTimespan (900).\n", nActualSpacing);
 		nActualSpacing = nTargetTimespan;
 	}
 
@@ -1120,15 +1120,15 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
     CBigNum bnNew;
     bnNew.SetCompact(pindexPrev->nBits);
 
-    int64 nTargetSpacing = fProofOfStake? nStakeTargetSpacing : min(nTargetSpacingWorkMax, (int64) nStakeTargetSpacing * (1 + pindexLast->nHeight - pindexPrev->nHeight));
-    int64 nInterval = nTargetTimespan / nTargetSpacing;
+    int64_t nTargetSpacing = fProofOfStake? nStakeTargetSpacing : min(nTargetSpacingWorkMax, (int64_t) nStakeTargetSpacing * (1 + pindexLast->nHeight - pindexPrev->nHeight));
+    int64_t nInterval = nTargetTimespan / nTargetSpacing;
     bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
     bnNew /= ((nInterval + 1) * nTargetSpacing);
 	
 	/*
-	printf(">> Height = %d, fProofOfStake = %d, nInterval = %lld, nTargetSpacing = %lld, nActualSpacing = %lld\n", 
+	printf(">> Height = %d, fProofOfStake = %d, nInterval = %" PRId64 ", nTargetSpacing = %" PRId64 ", nActualSpacing = %" PRId64 "\n", 
 		pindexPrev->nHeight, fProofOfStake, nInterval, nTargetSpacing, nActualSpacing);  
-	printf(">> pindexPrev->GetBlockTime() = %lld, pindexPrev->nHeight = %d, pindexPrevPrev->GetBlockTime() = %lld, pindexPrevPrev->nHeight = %d\n", 
+	printf(">> pindexPrev->GetBlockTime() = %" PRId64 ", pindexPrev->nHeight = %d, pindexPrevPrev->GetBlockTime() = %" PRId64 ", pindexPrevPrev->nHeight = %d\n", 
 		pindexPrev->GetBlockTime(), pindexPrev->nHeight, pindexPrevPrev->GetBlockTime(), pindexPrevPrev->nHeight);  
 	*/
 
@@ -1165,7 +1165,7 @@ bool IsInitialBlockDownload()
 {
     if (pindexBest == NULL || nBestHeight < Checkpoints::GetTotalBlocksEstimate())
         return true;
-    static int64 nLastUpdate;
+    static int64_t nLastUpdate;
     static CBlockIndex* pindexLastBest;
     if (pindexBest != pindexLastBest)
     {
@@ -1321,12 +1321,12 @@ const CTxOut& CTransaction::GetOutputFor(const CTxIn& input, const MapPrevTx& in
     return txPrev.vout[input.prevout.n];
 }
 
-int64 CTransaction::GetValueIn(const MapPrevTx& inputs) const
+int64_t CTransaction::GetValueIn(const MapPrevTx& inputs) const
 {
     if (IsCoinBase())
         return 0;
 
-    int64 nResult = 0;
+    int64_t nResult = 0;
     for (unsigned int i = 0; i < vin.size(); i++)
     {
         nResult += GetOutputFor(vin[i], inputs).nValue;
@@ -1360,8 +1360,8 @@ bool CTransaction::ConnectInputs(CTxDB& txdb, MapPrevTx inputs,
     // ... both are false when called from CTransaction::AcceptToMemoryPool
     if (!IsCoinBase())
     {
-        int64 nValueIn = 0;
-        int64 nFees = 0;
+        int64_t nValueIn = 0;
+        int64_t nFees = 0;
         for (unsigned int i = 0; i < vin.size(); i++)
         {
             COutPoint prevout = vin[i].prevout;
@@ -1434,10 +1434,10 @@ bool CTransaction::ConnectInputs(CTxDB& txdb, MapPrevTx inputs,
         if (IsCoinStake())
         {
             // coin stake tx earns reward instead of paying fee
-            uint64 nCoinAge;
+            uint64_t nCoinAge;
             if (!GetCoinAge(txdb, nCoinAge))
                 return error("ConnectInputs() : %s unable to get coin age for coinstake", GetHash().ToString().substr(0,10).c_str());
-            int64 nStakeReward = GetValueOut() - nValueIn;
+            int64_t nStakeReward = GetValueOut() - nValueIn;
             if (nStakeReward > GetProofOfStakeReward(nCoinAge, pindexBlock->nBits, nTime, pindexBlock->nHeight, false) - GetMinFee() + MIN_TX_FEE)
                 return DoS(100, error("ConnectInputs() : %s stake reward exceeded", GetHash().ToString().substr(0,10).c_str()));
         }
@@ -1447,7 +1447,7 @@ bool CTransaction::ConnectInputs(CTxDB& txdb, MapPrevTx inputs,
                 return DoS(100, error("ConnectInputs() : %s value in < value out", GetHash().ToString().substr(0,10).c_str()));
 
             // Tally transaction fees
-            int64 nTxFee = nValueIn - GetValueOut();
+            int64_t nTxFee = nValueIn - GetValueOut();
             if (nTxFee < 0)
                 return DoS(100, error("ConnectInputs() : %s nTxFee < 0", GetHash().ToString().substr(0,10).c_str()));
             // enforce transaction fees for every block
@@ -1471,7 +1471,7 @@ bool CTransaction::ClientConnectInputs()
     // Take over previous transactions' spent pointers
     {
         LOCK(mempool.cs);
-        int64 nValueIn = 0;
+        int64_t nValueIn = 0;
         for (unsigned int i = 0; i < vin.size(); i++)
         {
             // Get prev tx from single transactions in memory
@@ -1564,9 +1564,9 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
         nTxPos = pindex->nBlockPos + ::GetSerializeSize(CBlock(), SER_DISK, CLIENT_VERSION) - (2 * GetSizeOfCompactSize(0)) + GetSizeOfCompactSize(vtx.size());
 
     map<uint256, CTxIndex> mapQueuedChanges;
-    int64 nFees = 0;
-    int64 nValueIn = 0;
-    int64 nValueOut = 0;
+    int64_t nFees = 0;
+    int64_t nValueIn = 0;
+    int64_t nValueOut = 0;
     unsigned int nSigOps = 0;
     for (CTransaction& tx : vtx)
     {
@@ -1608,8 +1608,8 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
                     return DoS(100, error("ConnectBlock() : too many sigops"));
             }
 
-            int64 nTxValueIn = tx.GetValueIn(mapInputs);
-            int64 nTxValueOut = tx.GetValueOut();
+            int64_t nTxValueIn = tx.GetValueIn(mapInputs);
+            int64_t nTxValueOut = tx.GetValueOut();
             nValueIn += nTxValueIn;
             nValueOut += nTxValueOut;
             if (!tx.IsCoinStake())
@@ -1631,7 +1631,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
     // fees are not collected by miners as in bitcoin
     // fees are destroyed to compensate the entire network
     if (fDebug && GetBoolArg("-printcreation"))
-        printf("ConnectBlock() : destroy=%s nFees=%lld\n", FormatMoney(nFees).c_str(), nFees);
+        printf("ConnectBlock() : destroy=%s nFees=%" PRId64 "\n", FormatMoney(nFees).c_str(), nFees);
 
     if (fJustCheck)
         return true;
@@ -1918,7 +1918,7 @@ bool CBlock::SetBestChain(CTxDB& txdb, CBlockIndex* pindexNew)
 // guaranteed to be in main chain by sync-checkpoint. This rule is
 // introduced to help nodes establish a consistent view of the coin
 // age (trust score) of competing branches.
-bool CTransaction::GetCoinAge(CTxDB& txdb, uint64& nCoinAge) const
+bool CTransaction::GetCoinAge(CTxDB& txdb, uint64_t& nCoinAge) const
 {
     CBigNum bnCentSecond = 0;  // coin age in the unit of cent-seconds
     nCoinAge = 0;
@@ -1946,11 +1946,11 @@ bool CTransaction::GetCoinAge(CTxDB& txdb, uint64& nCoinAge) const
         if (block.GetBlockTime() + nStakeMinAge > nTime)
             continue; // only count coins meeting min age requirement
 
-        int64 nValueIn = txPrev.vout[txin.prevout.n].nValue;
+        int64_t nValueIn = txPrev.vout[txin.prevout.n].nValue;
         bnCentSecond += CBigNum(nValueIn) * (nTime-txPrev.nTime) / CENT;
 
         if (fDebug && GetBoolArg("-printcoinage"))
-            printf("coin age nValueIn=%lld nTimeDiff=%d bnCentSecond=%s\n", nValueIn, nTime - txPrev.nTime, bnCentSecond.ToString().c_str());
+            printf("coin age nValueIn=%" PRId64 " nTimeDiff=%d bnCentSecond=%s\n", nValueIn, nTime - txPrev.nTime, bnCentSecond.ToString().c_str());
     }
 
     CBigNum bnCoinDay = bnCentSecond * CENT / COIN / (24 * 60 * 60);
@@ -1961,14 +1961,14 @@ bool CTransaction::GetCoinAge(CTxDB& txdb, uint64& nCoinAge) const
 }
 
 // total coin age spent in block, in the unit of coin-days.
-bool CBlock::GetCoinAge(uint64& nCoinAge) const
+bool CBlock::GetCoinAge(uint64_t& nCoinAge) const
 {
     nCoinAge = 0;
 
     CTxDB txdb("r");
     for (const CTransaction& tx : vtx)
     {
-        uint64 nTxCoinAge;
+        uint64_t nTxCoinAge;
         if (tx.GetCoinAge(txdb, nTxCoinAge))
             nCoinAge += nTxCoinAge;
         else
@@ -1978,7 +1978,7 @@ bool CBlock::GetCoinAge(uint64& nCoinAge) const
     if (nCoinAge == 0) // block coin age minimum 1 coin-day
         nCoinAge = 1;
     if (fDebug && GetBoolArg("-printcoinage"))
-        printf("block coin age total nCoinDays=%lld\n", nCoinAge);
+        printf("block coin age total nCoinDays=%" PRId64 "\n", nCoinAge);
     return true;
 }
 
@@ -2017,14 +2017,14 @@ bool CBlock::AddToBlockIndex(unsigned int nFile, unsigned int nBlockPos)
     }
 
     // compute stake modifier
-    uint64 nStakeModifier = 0;
+    uint64_t nStakeModifier = 0;
     bool fGeneratedStakeModifier = false;
     if (!ComputeNextStakeModifier(pindexNew->pprev, nStakeModifier, fGeneratedStakeModifier))
         return error("AddToBlockIndex() : ComputeNextStakeModifier() failed");
     pindexNew->SetStakeModifier(nStakeModifier, fGeneratedStakeModifier);
     pindexNew->nStakeModifierChecksum = GetStakeModifierChecksum(pindexNew);
     if (!CheckStakeModifierCheckpoints(pindexNew->nHeight, pindexNew->nStakeModifierChecksum))
-        return error("AddToBlockIndex() : Rejected by stake modifier checkpoint height=%d, modifier=0x%016llu", pindexNew->nHeight, nStakeModifier);
+        return error("AddToBlockIndex() : Rejected by stake modifier checkpoint height=%d, modifier=0x%016" PRIx64 "", pindexNew->nHeight, nStakeModifier);
 
     // Add to mapBlockIndex
     map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.insert(make_pair(hash, pindexNew)).first;
@@ -2092,12 +2092,12 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         return DoS(100, error("CheckBlock() : coinbase output not empty for proof-of-stake block"));
 
     // Check coinbase timestamp
-    if (GetBlockTime() > FutureDrift((int64)vtx[0].nTime))
+    if (GetBlockTime() > FutureDrift((int64_t)vtx[0].nTime))
         return DoS(50, error("CheckBlock() : coinbase timestamp is too early"));
 
     // Check coinstake timestamp
-    if (IsProofOfStake() && !CheckCoinStakeTimestamp(GetBlockTime(), (int64)vtx[1].nTime))
-        return DoS(50, error("CheckBlock() : coinstake timestamp violation nTimeBlock=%lld nTimeTx=%u", GetBlockTime(), vtx[1].nTime));
+    if (IsProofOfStake() && !CheckCoinStakeTimestamp(GetBlockTime(), (int64_t)vtx[1].nTime))
+        return DoS(50, error("CheckBlock() : coinstake timestamp violation nTimeBlock=%" PRId64 " nTimeTx=%u", GetBlockTime(), vtx[1].nTime));
 
     // Check proof-of-stake block signature 
     if (IsProofOfStake() && fCheckSig && !CheckBlockSignature())
@@ -2110,7 +2110,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
             return DoS(tx.nDoS, error("CheckBlock() : CheckTransaction failed"));
 
         // check transaction timestamp
-        if (GetBlockTime() < (int64)tx.nTime)
+        if (GetBlockTime() < (int64_t)tx.nTime)
             return DoS(50, error("CheckBlock() : block timestamp earlier than transaction timestamp"));
     }
 
@@ -2305,7 +2305,7 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock, std::string& strErr)
     if (pcheckpoint && pblock->hashPrevBlock != hashBestChain && !Checkpoints::WantedByPendingSyncCheckpoint(hash))
     {
         // Extra checks to prevent "fill up memory by spamming with bogus blocks"
-        int64 deltaTime = pblock->GetBlockTime() - pcheckpoint->nTime;
+        int64_t deltaTime = pblock->GetBlockTime() - pcheckpoint->nTime;
         CBigNum bnNewBlock;
         bnNewBlock.SetCompact(pblock->nBits);
         CBigNum bnRequired;
@@ -2472,9 +2472,9 @@ bool CBlock::CheckBlockSignature() const
 }
 
 
-bool CheckDiskSpace(uint64 nAdditionalBytes)
+bool CheckDiskSpace(uint64_t nAdditionalBytes)
 {
-    uint64 nFreeBytesAvailable = boost::filesystem::space(GetDataDir()).available;
+    uint64_t nFreeBytesAvailable = boost::filesystem::space(GetDataDir()).available;
 
     // Check for nMinDiskSpace bytes (currently 50MB)
     if (nFreeBytesAvailable < nMinDiskSpace + nAdditionalBytes)
@@ -2723,7 +2723,7 @@ void PrintBlockTree()
 
 bool LoadExternalBlockFile(FILE* fileIn)
 {
-    int64 nStart = GetTimeMillis();
+    int64_t nStart = GetTimeMillis();
 
     int nLoaded = 0;
 	int nStartHeight = nBestHeight;
@@ -2800,7 +2800,7 @@ bool LoadExternalBlockFile(FILE* fileIn)
                    __PRETTY_FUNCTION__);
         }
     }
-    printf("Loaded %i blocks from external file in %lldms\n", nLoaded, GetTimeMillis() - nStart);
+    printf("Loaded %i blocks from external file in %" PRId64 "ms\n", nLoaded, GetTimeMillis() - nStart);
     return nLoaded > 0;
 }
 
@@ -2932,10 +2932,10 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
             return false;
         }
 
-        int64 nTime;
+        int64_t nTime;
         CAddress addrMe;
         CAddress addrFrom;
-        uint64 nNonce = 1;
+        uint64_t nNonce = 1;
         vRecv >> pfrom->nVersion >> pfrom->nServices >> nTime >> addrMe;
         if (pfrom->nVersion < MIN_PEER_PROTO_VERSION)
         {
@@ -3043,9 +3043,9 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 		
 	 // Be more aggressive with blockchain download. Send new getblocks() message after connection 
 	 // to new node if waited longer than MAX_TIME_SINCE_BEST_BLOCK. 
-	 int64 TimeSinceBestBlock = GetTime() - nTimeBestReceived; 
+	 int64_t TimeSinceBestBlock = GetTime() - nTimeBestReceived; 
 	 if (TimeSinceBestBlock > MAX_TIME_SINCE_BEST_BLOCK) { 
-	  	printf("INFO: Waiting %lld sec which is too long. Sending GetBlocks(0)\n", TimeSinceBestBlock); 
+	  	printf("INFO: Waiting %" PRId64 " sec which is too long. Sending GetBlocks(0)\n", TimeSinceBestBlock); 
 		pfrom->PushGetBlocks(pindexBest, uint256(0)); 
   	 } 
 
@@ -3084,8 +3084,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 
         // Store the new addresses
         vector<CAddress> vAddrOk;
-        int64 nNow = GetAdjustedTime();
-        int64 nSince = nNow - 10 * 60;
+        int64_t nNow = GetAdjustedTime();
+        int64_t nSince = nNow - 10 * 60;
         for (CAddress& addr : vAddr)
         {
             if (fShutdown)
@@ -3104,7 +3104,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
                     static uint256 hashSalt;
                     if (hashSalt == 0)
                         hashSalt = GetRandHash();
-                    uint64 hashAddr = addr.GetHash();
+                    uint64_t hashAddr = addr.GetHash();
                     uint256 hashRand = hashSalt ^ (hashAddr<<32) ^ ((GetTime()+hashAddr)/(24*60*60));
                     hashRand = Hash(BEGIN(hashRand), END(hashRand));
                     multimap<uint256, CNode*> mapMix;
@@ -3420,9 +3420,9 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         } else { 
         // Be more aggressive with blockchain download. Send getblocks() message after 
         // an error related to new block download. 
-            int64 TimeSinceBestBlock = GetTime() - nTimeBestReceived; 
+            int64_t TimeSinceBestBlock = GetTime() - nTimeBestReceived; 
         if (TimeSinceBestBlock > MAX_TIME_SINCE_BEST_BLOCK) { 
-            printf("INFO: Waiting %lld sec which is too long. Sending GetBlocks(0)\n", TimeSinceBestBlock); 
+            printf("INFO: Waiting %" PRId64 " sec which is too long. Sending GetBlocks(0)\n", TimeSinceBestBlock); 
                 pfrom->PushGetBlocks(pindexBest, uint256(0)); 
             } 
         } 
@@ -3432,7 +3432,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
     else if (strCommand == "getaddr")
     {
         // Don't return addresses older than nCutOff timestamp
-        int64 nCutOff = GetTime() - (nNodeLifespan * 24 * 60 * 60);
+        int64_t nCutOff = GetTime() - (nNodeLifespan * 24 * 60 * 60);
         pfrom->vAddrToSend.clear();
         vector<CAddress> vAddr = addrman.GetAddr();
         for (const CAddress &addr : vAddr)
@@ -3507,7 +3507,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
     {
         if (pfrom->nVersion > BIP0031_VERSION)
         {
-            uint64 nonce = 0;
+            uint64_t nonce = 0;
             vRecv >> nonce;
             // Echo the message back with the nonce. This allows for two useful features:
             //
@@ -3695,7 +3695,7 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
         // Keep-alive ping. We send a nonce of zero because we don't use it anywhere
         // right now.
         if (pto->nLastSend && GetTime() - pto->nLastSend > 30 * 60 && pto->vSendMsg.empty()) {
-            uint64 nonce = 0;
+            uint64_t nonce = 0;
             if (pto->nVersion > BIP0031_VERSION)
                 pto->PushMessage("ping", nonce);
             else
@@ -3706,7 +3706,7 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
         ResendWalletTransactions();
 
         // Address refresh broadcast
-        static int64 nLastRebroadcast;
+        static int64_t nLastRebroadcast;
         if (!IsInitialBlockDownload() && (GetTime() - nLastRebroadcast > 24 * 60 * 60))
         {
             {
@@ -3817,7 +3817,7 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
         // Message: getdata
         //
         vector<CInv> vGetData;
-        int64 nNow = GetTime() * 1000000;
+        int64_t nNow = GetTime() * 1000000;
         CTxDB txdb("r");
         while (!pto->mapAskFor.empty() && (*pto->mapAskFor.begin()).first <= nNow)
         {
@@ -3852,7 +3852,7 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
 // * if e==9, we only know the resulting number is not zero, so output 1 + 10*(n - 1) + 9
 // (this is decodable, as d is in [1-9] and e is in [0-9])
 
-uint64 CTxOutCompressor::CompressAmount(uint64 n)
+uint64_t CTxOutCompressor::CompressAmount(uint64_t n)
 {
     if (n == 0)
         return 0;
@@ -3871,7 +3871,7 @@ uint64 CTxOutCompressor::CompressAmount(uint64 n)
     }
 }
 
-uint64 CTxOutCompressor::DecompressAmount(uint64 x)
+uint64_t CTxOutCompressor::DecompressAmount(uint64_t x)
 {
     // x = 0  OR  x = 1+10*(9*n + d - 1) + e  OR  x = 1+10*(n - 1) + 9
     if (x == 0)

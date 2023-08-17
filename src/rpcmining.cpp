@@ -172,7 +172,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
     // Update block
     static unsigned int nTransactionsUpdatedLast;
     static CBlockIndex* pindexPrev;
-    static int64 nStart;
+    static int64_t nStart;
     static CBlock* pblock;
     if (pindexPrev != pindexBest ||
         (nTransactionsUpdated != nTransactionsUpdatedLast && GetTime() - nStart > 5))

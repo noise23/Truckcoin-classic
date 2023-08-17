@@ -58,7 +58,7 @@ static void ThreadSafeMessageBox(const std::string& message, const std::string& 
     }
 }
 
-static bool ThreadSafeAskFee(int64 nFeeRequired, const std::string& strCaption)
+static bool ThreadSafeAskFee(int64_t nFeeRequired, const std::string& strCaption)
 {
     if(!guiref)
         return false;
@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
 
                 window.setClientModel(&clientModel);
                 window.setWalletModel(&walletModel);
-				
+
 #if defined(Q_OS_WIN) && QT_VERSION >= 0x050000
                 app.installNativeEventFilter(new WinShutdownMonitor());
 #endif
@@ -253,7 +253,7 @@ int main(int argc, char *argv[])
 
                 // Place this here as guiref has to be defined if we don't want to lose URIs
                 ipcInit(argc, argv);
-				
+
 #if defined(Q_OS_WIN) && QT_VERSION >= 0x050000
                 WinShutdownMonitor::registerShutdownBlockReason(QObject::tr("Truckcoin shutting down. Please wait..."), (HWND)window.getMainWinId()); 
 #endif
@@ -279,4 +279,4 @@ int main(int argc, char *argv[])
     }
     return 0;
 }
-#endif // BITCOIN_QT_TEST
+#endif

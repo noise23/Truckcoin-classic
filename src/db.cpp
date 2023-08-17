@@ -429,7 +429,7 @@ bool CDB::Rewrite(const string& strFile, const char* pszSkip)
 
 void CDBEnv::Flush(bool fShutdown)
 {
-    int64 nStart = GetTimeMillis();
+    int64_t nStart = GetTimeMillis();
     // Flush log data to the actual data file
     //  on all files that are not in use
     printf("Flush(%s)%s\n", fShutdown ? "true" : "false", fDbEnvInit ? "" : " db not started");
@@ -460,7 +460,7 @@ void CDBEnv::Flush(bool fShutdown)
             else
                 mi++;
         }
-        printf("DBFlush(%s)%s ended %15lldms\n", fShutdown ? "true" : "false", fDbEnvInit ? "" : " db not started", GetTimeMillis() - nStart);
+        printf("DBFlush(%s)%s ended %15" PRId64 "ms\n", fShutdown ? "true" : "false", fDbEnvInit ? "" : " db not started", GetTimeMillis() - nStart);
         if (fShutdown)
         {
             char** listp;
@@ -472,11 +472,6 @@ void CDBEnv::Flush(bool fShutdown)
         }
     }
 }
-
-
-
-
-
 
 //
 // CTxDB
@@ -624,7 +619,7 @@ bool CTxDB::LoadBlockIndex()
         // calculate stake modifier checksum
         pindex->nStakeModifierChecksum = GetStakeModifierChecksum(pindex);
         if (!CheckStakeModifierCheckpoints(pindex->nHeight, pindex->nStakeModifierChecksum))
-            return error("CTxDB::LoadBlockIndex() : Failed stake modifier checkpoint height=%d, modifier=0x%016llx", pindex->nHeight, pindex->nStakeModifier);
+            return error("CTxDB::LoadBlockIndex() : Failed stake modifier checkpoint height=%d, modifier=0x%016" PRIx64 , pindex->nHeight, pindex->nStakeModifier);
     }
 
     // Load hashBestChain pointer to end of best chain

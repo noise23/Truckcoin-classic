@@ -19,7 +19,7 @@
 using namespace json_spirit;
 using namespace std;
 
-int64 nWalletUnlockTime;
+int64_t nWalletUnlockTime;
 static CCriticalSection cs_nWalletUnlockTime;
 
 extern void TxToJSON(const CTransaction& tx, const uint256 hashBlock, json_spirit::Object& entry);
@@ -305,7 +305,7 @@ Value sendtoaddress(const Array& params, bool fHelp)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Truckcoin address");
 
     // Amount
-    int64 nAmount = AmountFromValue(params[1]);
+    int64_t nAmount = AmountFromValue(params[1]);
 
     if (nAmount < MIN_TXOUT_AMOUNT)
         throw JSONRPCError(-101, "Send amount too small");
@@ -337,7 +337,7 @@ Value listaddressgroupings(const Array& params, bool fHelp)
             "in past transactions");
 
     Array jsonGroupings;
-    map<CTxDestination, int64> balances = pwalletMain->GetAddressBalances();
+    map<CTxDestination, int64_t> balances = pwalletMain->GetAddressBalances();
     for (set<CTxDestination> grouping : pwalletMain->GetAddressGroupings())
     {
         Array jsonGrouping;
@@ -452,7 +452,7 @@ Value getreceivedbyaddress(const Array& params, bool fHelp)
         nMinDepth = params[1].get_int();
 
     // Tally
-    int64 nAmount = 0;
+    int64_t nAmount = 0;
     for (map<uint256, CWalletTx>::iterator it = pwalletMain->mapWallet.begin(); it != pwalletMain->mapWallet.end(); ++it)
     {
         const CWalletTx& wtx = (*it).second;
@@ -498,7 +498,7 @@ Value getreceivedbyaccount(const Array& params, bool fHelp)
     GetAccountAddresses(strAccount, setAddress);
 
     // Tally
-    int64 nAmount = 0;
+    int64_t nAmount = 0;
     for (map<uint256, CWalletTx>::iterator it = pwalletMain->mapWallet.begin(); it != pwalletMain->mapWallet.end(); ++it)
     {
         const CWalletTx& wtx = (*it).second;
@@ -518,9 +518,9 @@ Value getreceivedbyaccount(const Array& params, bool fHelp)
 }
 
 
-int64 GetAccountBalance(CWalletDB& walletdb, const string& strAccount, int nMinDepth)
+int64_t GetAccountBalance(CWalletDB& walletdb, const string& strAccount, int nMinDepth)
 {
-    int64 nBalance = 0;
+    int64_t nBalance = 0;
 
     // Tally wallet transactions
     for (map<uint256, CWalletTx>::iterator it = pwalletMain->mapWallet.begin(); it != pwalletMain->mapWallet.end(); ++it)
@@ -529,7 +529,7 @@ int64 GetAccountBalance(CWalletDB& walletdb, const string& strAccount, int nMinD
         if (!wtx.IsFinal())
             continue;
 
-        int64 nGeneratedImmature, nGeneratedMature, nReceived, nSent, nFee;
+        int64_t nGeneratedImmature, nGeneratedMature, nReceived, nSent, nFee;
         wtx.GetAccountAmounts(strAccount, nGeneratedImmature, nGeneratedMature, nReceived, nSent, nFee);
 
         if (nReceived != 0 && wtx.GetDepthInMainChain() >= nMinDepth)
@@ -548,7 +548,7 @@ int64 GetAccountBalance(CWalletDB& walletdb, const string& strAccount, int nMinD
     return nBalance;
 }
 
-int64 GetAccountBalance(const string& strAccount, int nMinDepth)
+int64_t GetAccountBalance(const string& strAccount, int nMinDepth)
 {
     CWalletDB walletdb(pwalletMain->strWalletFile);
     return GetAccountBalance(walletdb, strAccount, nMinDepth);
@@ -574,30 +574,30 @@ Value getbalance(const Array& params, bool fHelp)
         // Calculate total balance a different way from GetBalance()
         // (GetBalance() sums up all unspent TxOuts)
         // getbalance and getbalance '*' should always return the same number.
-        int64 nBalance = 0;
+        int64_t nBalance = 0;
         for (map<uint256, CWalletTx>::iterator it = pwalletMain->mapWallet.begin(); it != pwalletMain->mapWallet.end(); ++it)
         {
             const CWalletTx& wtx = (*it).second;
             if (!wtx.IsFinal())
                 continue;
 
-            int64 allGeneratedImmature, allGeneratedMature, allFee;
+            int64_t allGeneratedImmature, allGeneratedMature, allFee;
             allGeneratedImmature = allGeneratedMature = allFee = 0;
 
             string strSentAccount;
-            list<pair<CTxDestination, int64> > listReceived;
-            list<pair<CTxDestination, int64> > listSent;
+            list<pair<CTxDestination, int64_t> > listReceived;
+            list<pair<CTxDestination, int64_t> > listSent;
             wtx.GetAmounts(allGeneratedImmature, allGeneratedMature, listReceived, listSent, allFee, strSentAccount);
             if (wtx.GetDepthInMainChain() >= nMinDepth)
             {
-                for (const std::pair<CTxDestination, int64>& r : listReceived)
+                for (const std::pair<CTxDestination, int64_t>& r : listReceived)
                     nBalance += r.second;
             }
 
             if((wtx.IsCoinBaseOrStake() && wtx.GetDepthInMainChain() >= nMinDepth && wtx.GetBlocksToMaturity() == 0)
                 || !wtx.IsCoinBaseOrStake())
             {
-                for (const std::pair<CTxDestination, int64>& r : listSent)
+                for (const std::pair<CTxDestination, int64_t>& r : listSent)
                 nBalance -= r.second;
                 nBalance -= allFee;
                 nBalance += allGeneratedMature;
@@ -608,7 +608,7 @@ Value getbalance(const Array& params, bool fHelp)
 
     string strAccount = AccountFromValue(params[0]);
 
-    int64 nBalance = GetAccountBalance(strAccount, nMinDepth);
+    int64_t nBalance = GetAccountBalance(strAccount, nMinDepth);
 
     return ValueFromAmount(nBalance);
 }
@@ -623,7 +623,7 @@ Value movecmd(const Array& params, bool fHelp)
 
     string strFrom = AccountFromValue(params[0]);
     string strTo = AccountFromValue(params[1]);
-    int64 nAmount = AmountFromValue(params[2]);
+    int64_t nAmount = AmountFromValue(params[2]);
 
     if (nAmount < MIN_TXOUT_AMOUNT)
         throw JSONRPCError(-101, "Send amount too small");
@@ -639,7 +639,7 @@ Value movecmd(const Array& params, bool fHelp)
     if (!walletdb.TxnBegin())
         throw JSONRPCError(RPC_DATABASE_ERROR, "database error");
 
-    int64 nNow = GetAdjustedTime();
+    int64_t nNow = GetAdjustedTime();
 
     // Debit
     CAccountingEntry debit;
@@ -680,7 +680,7 @@ Value sendfrom(const Array& params, bool fHelp)
     CBitcoinAddress address(params[1].get_str());
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Truckcoin address");
-    int64 nAmount = AmountFromValue(params[2]);
+    int64_t nAmount = AmountFromValue(params[2]);
 
     if (nAmount < MIN_TXOUT_AMOUNT)
         throw JSONRPCError(-101, "Send amount too small");
@@ -699,7 +699,7 @@ Value sendfrom(const Array& params, bool fHelp)
     EnsureWalletIsUnlocked();
 
     // Check funds
-    int64 nBalance = GetAccountBalance(strAccount, nMinDepth);
+    int64_t nBalance = GetAccountBalance(strAccount, nMinDepth);
     if (nAmount > nBalance)
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Account has insufficient funds");
 
@@ -733,9 +733,9 @@ Value sendmany(const Array& params, bool fHelp)
         wtx.mapValue["comment"] = params[3].get_str();
 
     set<CBitcoinAddress> setAddress;
-    vector<pair<CScript, int64> > vecSend;
+    vector<pair<CScript, int64_t> > vecSend;
 
-    int64 totalAmount = 0;
+    int64_t totalAmount = 0;
     for (const Pair& s : sendTo)
     {
         CBitcoinAddress address(s.name_);
@@ -748,7 +748,7 @@ Value sendmany(const Array& params, bool fHelp)
 
         CScript scriptPubKey;
         scriptPubKey.SetDestination(address.Get());
-        int64 nAmount = AmountFromValue(s.value_);
+        int64_t nAmount = AmountFromValue(s.value_);
 
         if (nAmount < MIN_TXOUT_AMOUNT)
             throw JSONRPCError(-101, "Send amount too small");
@@ -761,13 +761,13 @@ Value sendmany(const Array& params, bool fHelp)
     EnsureWalletIsUnlocked();
 
     // Check funds
-    int64 nBalance = GetAccountBalance(strAccount, nMinDepth);
+    int64_t nBalance = GetAccountBalance(strAccount, nMinDepth);
     if (totalAmount > nBalance)
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Account has insufficient funds");
 
     // Send
     CReserveKey keyChange(pwalletMain);
-    int64 nFeeRequired = 0;
+    int64_t nFeeRequired = 0;
     bool fCreated = pwalletMain->CreateTransaction(vecSend, wtx, keyChange, nFeeRequired, 1);
     if (!fCreated)
     {
@@ -855,7 +855,7 @@ Value addmultisigaddress(const Array& params, bool fHelp)
 
 struct tallyitem
 {
-    int64 nAmount;
+    int64_t nAmount;
     int nConf;
     tallyitem()
     {
@@ -912,7 +912,7 @@ Value ListReceived(const Array& params, bool fByAccounts)
         if (it == mapTally.end() && !fIncludeEmpty)
             continue;
 
-        int64 nAmount = 0;
+        int64_t nAmount = 0;
         int nConf = std::numeric_limits<int>::max();
         if (it != mapTally.end())
         {
@@ -941,7 +941,7 @@ Value ListReceived(const Array& params, bool fByAccounts)
     {
         for (map<string, tallyitem>::iterator it = mapAccountTally.begin(); it != mapAccountTally.end(); ++it)
         {
-            int64 nAmount = (*it).second.nAmount;
+            int64_t nAmount = (*it).second.nAmount;
             int nConf = (*it).second.nConf;
             Object obj;
             obj.push_back(Pair("account",       (*it).first));
@@ -987,10 +987,10 @@ Value listreceivedbyaccount(const Array& params, bool fHelp)
 
 void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDepth, bool fLong, Array& ret)
 {
-    int64 nGeneratedImmature, nGeneratedMature, nFee;
+    int64_t nGeneratedImmature, nGeneratedMature, nFee;
     string strSentAccount;
-    list<pair<CTxDestination, int64> > listReceived;
-    list<pair<CTxDestination, int64> > listSent;
+    list<pair<CTxDestination, int64_t> > listReceived;
+    list<pair<CTxDestination, int64_t> > listSent;
 
     wtx.GetAmounts(nGeneratedImmature, nGeneratedMature, listReceived, listSent, nFee, strSentAccount);
 
@@ -1019,7 +1019,7 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
     // Sent
     if ((!listSent.empty() || nFee != 0) && (fAllAccounts || strAccount == strSentAccount))
     {
-        for (const std::pair<CTxDestination, int64>& s : listSent)
+        for (const std::pair<CTxDestination, int64_t>& s : listSent)
         {
             Object entry;
             entry.push_back(Pair("account", strSentAccount));
@@ -1036,7 +1036,7 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
     // Received
     if (listReceived.size() > 0 && wtx.GetDepthInMainChain() >= nMinDepth)
     {
-        for (const std::pair<CTxDestination, int64>& r : listReceived)
+        for (const std::pair<CTxDestination, int64_t>& r : listReceived)
         {
             string account;
             if (pwalletMain->mapAddressBook.count(r.first))
@@ -1152,7 +1152,7 @@ Value listaccounts(const Array& params, bool fHelp)
     if (params.size() > 0)
         nMinDepth = params[0].get_int();
 
-    map<string, int64> mapAccountBalances;
+    map<string, int64_t> mapAccountBalances;
     for (const std::pair<CTxDestination, std::string>& entry : pwalletMain->mapAddressBook) {
         if (IsMine(*pwalletMain, entry.first)) // This address belongs to me
             mapAccountBalances[entry.second] = 0;
@@ -1165,14 +1165,14 @@ Value listaccounts(const Array& params, bool fHelp)
         if(!wtx.IsFinal())
             continue;
 
-        int64 nGeneratedImmature, nGeneratedMature, nFee;
+        int64_t nGeneratedImmature, nGeneratedMature, nFee;
         string strSentAccount;
-        list<pair<CTxDestination, int64> > listReceived;
-        list<pair<CTxDestination, int64> > listSent;
+        list<pair<CTxDestination, int64_t> > listReceived;
+        list<pair<CTxDestination, int64_t> > listSent;
         wtx.GetAmounts(nGeneratedImmature, nGeneratedMature, listReceived, listSent, nFee, strSentAccount);
         if (wtx.GetDepthInMainChain() >= nMinDepth)
         {
-            for (const std::pair<CTxDestination, int64>& r : listReceived)
+            for (const std::pair<CTxDestination, int64_t>& r : listReceived)
                 if (pwalletMain->mapAddressBook.count(r.first))
                     mapAccountBalances[pwalletMain->mapAddressBook[r.first]] += r.second;
                 else
@@ -1185,7 +1185,7 @@ Value listaccounts(const Array& params, bool fHelp)
             mapAccountBalances[strSentAccount] -= nFee;
             mapAccountBalances[""] += nGeneratedMature;
 
-            for (const std::pair<CTxDestination, int64>& s : listSent)
+            for (const std::pair<CTxDestination, int64_t>& s : listSent)
                 mapAccountBalances[strSentAccount] -= s.second;
 
         }
@@ -1197,7 +1197,7 @@ Value listaccounts(const Array& params, bool fHelp)
         mapAccountBalances[entry.strAccount] += entry.nCreditDebit;
 
     Object ret;
-    for (const std::pair<std::string, int64>& accountBalance : mapAccountBalances) {
+    for (const std::pair<std::string, int64_t>& accountBalance : mapAccountBalances) {
         ret.push_back(Pair(accountBalance.first, ValueFromAmount(accountBalance.second)));
     }
     return ret;
@@ -1301,13 +1301,13 @@ Value getstaketx(const Array& params, bool fHelp)
                 entry.push_back(Pair("Previous Time", nPrevTime)); 
                 entry.push_back(Pair("Days To Stake", dDaysToStake));  
  
-                int64 nDebit = wtx.GetDebit(); 
-                int64 nFee = (wtx.IsFromMe() ? wtx.GetValueOut() - nDebit : 0); 
+                int64_t nDebit = wtx.GetDebit(); 
+                int64_t nFee = (wtx.IsFromMe() ? wtx.GetValueOut() - nDebit : 0); 
 
-                int64 nGeneratedImmature, nGeneratedMature, nFee2; 
+                int64_t nGeneratedImmature, nGeneratedMature, nFee2; 
                 string strSentAccount; 
-                list<pair<CTxDestination, int64> > listReceived; 
-                list<pair<CTxDestination, int64> > listSent; 
+                list<pair<CTxDestination, int64_t> > listReceived; 
+                list<pair<CTxDestination, int64_t> > listSent; 
                 wtx.GetAmounts(nGeneratedImmature, nGeneratedMature, listReceived, listSent, nFee2, strSentAccount); 
                 uint64_t nGeneratedAmount = max (nGeneratedMature, nGeneratedImmature);
                 double nGeneratedAmount2 = max (nGeneratedMature, nGeneratedImmature); //uint64_t math not working
@@ -1342,10 +1342,10 @@ Value gettransaction(const Array& params, bool fHelp)
 
         TxToJSON(wtx, 0, entry);
 
-        int64 nCredit = wtx.GetCredit();
-        int64 nDebit = wtx.GetDebit();
-        int64 nNet = nCredit - nDebit;
-        int64 nFee = (wtx.IsFromMe() ? wtx.GetValueOut() - nDebit : 0);
+        int64_t nCredit = wtx.GetCredit();
+        int64_t nDebit = wtx.GetDebit();
+        int64_t nNet = nCredit - nDebit;
+        int64_t nFee = (wtx.IsFromMe() ? wtx.GetValueOut() - nDebit : 0);
 
         entry.push_back(Pair("amount", ValueFromAmount(nNet - nFee)));
         if (wtx.IsFromMe())
@@ -1440,7 +1440,7 @@ void ThreadCleanWalletPassphrase(void* parg)
     // Make this thread recognisable as the wallet relocking thread
     RenameThread("truckcoin-lock-wa");
 
-    int64 nMyWakeTime = GetTimeMillis() + *((int64*)parg) * 1000;
+    int64_t nMyWakeTime = GetTimeMillis() + *((int64_t*)parg) * 1000;
 
     ENTER_CRITICAL_SECTION(cs_nWalletUnlockTime);
 
@@ -1452,7 +1452,7 @@ void ThreadCleanWalletPassphrase(void* parg)
         {
             if (nWalletUnlockTime==0)
                 break;
-            int64 nToSleep = nWalletUnlockTime - GetTimeMillis();
+            int64_t nToSleep = nWalletUnlockTime - GetTimeMillis();
             if (nToSleep <= 0)
                 break;
 
@@ -1476,7 +1476,7 @@ void ThreadCleanWalletPassphrase(void* parg)
 
     LEAVE_CRITICAL_SECTION(cs_nWalletUnlockTime);
 
-    delete (int64*)parg;
+    delete (int64_t*)parg;
 }
 
 Value walletpassphrase(const Array& params, bool fHelp)
@@ -1730,7 +1730,7 @@ Value reservebalance(const Array& params, bool fHelp)
         {
             if (params.size() == 1)
                 throw runtime_error("must provide amount to reserve balance.\n");
-            int64 nAmount = AmountFromValue(params[1]);
+            int64_t nAmount = AmountFromValue(params[1]);
             nAmount = (nAmount / CENT) * CENT;  // round to cent
             if (nAmount < 0)
                 throw runtime_error("amount cannot be negative.\n");
@@ -1745,7 +1745,7 @@ Value reservebalance(const Array& params, bool fHelp)
     }
 
     Object result;
-    int64 nReserveBalance = 0;
+    int64_t nReserveBalance = 0;
     if (mapArgs.count("-reservebalance") && !ParseMoney(mapArgs["-reservebalance"], nReserveBalance))
         throw runtime_error("invalid reserve balance amount\n");
     result.push_back(Pair("reserve", (nReserveBalance > 0)));
@@ -1763,7 +1763,7 @@ Value checkwallet(const Array& params, bool fHelp)
             "Check wallet for integrity.\n");
 
     int nMismatchSpent;
-    int64 nBalanceInQuestion;
+    int64_t nBalanceInQuestion;
     int nOrphansFound;
 
     pwalletMain->FixSpentCoins(nMismatchSpent, nBalanceInQuestion, nOrphansFound, true);
@@ -1789,7 +1789,7 @@ Value repairwallet(const Array& params, bool fHelp)
             "Repair wallet if checkwallet reports any problem.\n");
 
     int nMismatchSpent;
-    int64 nBalanceInQuestion;
+    int64_t nBalanceInQuestion;
     int nOrphansFound;
     pwalletMain->FixSpentCoins(nMismatchSpent, nBalanceInQuestion, nOrphansFound);
     Object result;

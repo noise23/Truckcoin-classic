@@ -67,7 +67,7 @@
 #include <iostream>
 
 extern CWallet *pwalletMain;
-extern int64 nLastCoinStakeSearchInterval;
+extern int64_t nLastCoinStakeSearchInterval;
 extern unsigned int nStakeTargetSpacing;
 
 BitcoinGUI::BitcoinGUI(QWidget *parent):
@@ -75,15 +75,15 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     clientModel(0),
     walletModel(0),
     encryptWalletAction(0),
-	unlockWalletforposAction(0),
-	unlockWalletAction(0),
-	lockWalletAction(0),
+    unlockWalletforposAction(0),
+    unlockWalletAction(0),
+    lockWalletAction(0),
     changePassphraseAction(0),
     aboutQtAction(0),
     trayIcon(0),
     notificator(0),
     rpcConsole(0),
-	blockBrowser(0)
+    blockBrowser(0)
 {
     updateStyle();
     resize(860, 600);
@@ -298,13 +298,13 @@ void BitcoinGUI::createActions()
     encryptWalletAction = new QAction(QIcon(":/icons/lock_closed"), tr("&Encrypt Wallet..."), this);
     encryptWalletAction->setToolTip(tr("Encrypt the private keys that belong to your wallet"));
     encryptWalletAction->setCheckable(true);
-	unlockWalletforposAction = new QAction(QIcon(":/icons/lock_open"), tr("&Unlock Wallet For PoS..."), this); 
+    unlockWalletforposAction = new QAction(QIcon(":/icons/lock_open"), tr("&Unlock Wallet For PoS..."), this); 
     unlockWalletforposAction->setStatusTip(tr("Unlock the wallet for PoS")); 
     unlockWalletforposAction->setCheckable(true); 
-	unlockWalletAction = new QAction(QIcon(":/icons/lock_open"), tr("&Unlock Wallet..."), this); 
+    unlockWalletAction = new QAction(QIcon(":/icons/lock_open"), tr("&Unlock Wallet..."), this); 
     unlockWalletAction->setStatusTip(tr("Unlock the wallet")); 
     unlockWalletAction->setCheckable(true); 
-	lockWalletAction = new QAction(QIcon(":/icons/lock_closed"), tr("&Lock Wallet..."), this); 
+    lockWalletAction = new QAction(QIcon(":/icons/lock_closed"), tr("&Lock Wallet..."), this); 
     lockWalletAction->setStatusTip(tr("Lock the wallet")); 
     lockWalletAction->setCheckable(true); 
     checkWalletAction = new QAction(QIcon(":/icons/inspect"), tr("&Check Wallet..."), this); 
@@ -333,11 +333,11 @@ void BitcoinGUI::createActions()
  
     openTrafficAction = new QAction(QIcon(":/icons/graph"), tr("Network Traffic Graph"), this);
     openTrafficAction->setToolTip(tr("Open Network Traffic Graph"));
-	
+
     openInfoAction = new QAction(QIcon(":/icons/info"), tr("General Info"), this);
     openInfoAction->setToolTip(tr("Open General Info Window"));
-	
-	blockAction = new QAction(QIcon(":/icons/blexp"), tr("&Block Explorer"), this);
+
+    blockAction = new QAction(QIcon(":/icons/blexp"), tr("&Block Explorer"), this);
     blockAction->setToolTip(tr("Explore the BlockChain"));
 
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
@@ -355,10 +355,10 @@ void BitcoinGUI::createActions()
     connect(verifyMessageAction, SIGNAL(triggered()), this, SLOT(gotoVerifyMessageTab()));
     connect(dumpWalletAction, SIGNAL(triggered()), this, SLOT(dumpWallet()));
     connect(importWalletAction, SIGNAL(triggered()), this, SLOT(importWallet()));
-	connect(unlockWalletforposAction, SIGNAL(triggered()), this, SLOT(unlockWalletForMint()));
-	connect(unlockWalletAction, SIGNAL(triggered()), this, SLOT(unlockWallet()));
-	connect(lockWalletAction, SIGNAL(triggered()), this, SLOT(lockWallet()));
-	connect(blockAction, SIGNAL(triggered()), this, SLOT(gotoBlockBrowser()));
+    connect(unlockWalletforposAction, SIGNAL(triggered()), this, SLOT(unlockWalletForMint()));
+    connect(unlockWalletAction, SIGNAL(triggered()), this, SLOT(unlockWallet()));
+    connect(lockWalletAction, SIGNAL(triggered()), this, SLOT(lockWallet()));
+    connect(blockAction, SIGNAL(triggered()), this, SLOT(gotoBlockBrowser()));
     connect(stakeReportAction, SIGNAL(triggered()), this, SLOT(stakeReportClicked()));
 }
 
@@ -384,35 +384,35 @@ void BitcoinGUI::createMenuBar()
     file->addAction(quitAction);
 
     QMenu *settings = appMenuBar->addMenu(tr("&Settings"));
-	settings->addAction(stakeMinerToggleAction);
-	settings->addSeparator();
+    settings->addAction(stakeMinerToggleAction);
+    settings->addSeparator();
     settings->addAction(optionsAction);
-	
-	QMenu *wallet = appMenuBar->addMenu(tr("&Wallet")); 
+
+    QMenu *wallet = appMenuBar->addMenu(tr("&Wallet")); 
     wallet->addAction(encryptWalletAction); 
     wallet->addAction(changePassphraseAction); 
-	wallet->addAction(unlockWalletforposAction);
-	wallet->addAction(unlockWalletAction);
-	wallet->addAction(lockWalletAction);
-	wallet->addSeparator(); 
+    wallet->addAction(unlockWalletforposAction);
+    wallet->addAction(unlockWalletAction);
+    wallet->addAction(lockWalletAction);
+    wallet->addSeparator(); 
     wallet->addAction(checkWalletAction); 
     wallet->addAction(repairWalletAction); 
-	wallet->addSeparator();
-	wallet->addAction(signMessageAction);
+    wallet->addSeparator();
+    wallet->addAction(signMessageAction);
     wallet->addAction(verifyMessageAction);
-	
+
     QMenu *information = appMenuBar->addMenu(tr("Information"));
     information->addAction(openInfoAction);
     information->addAction(openTrafficAction);
     information->addAction(stakeReportAction);
-	
+
     QMenu *help = appMenuBar->addMenu(tr("&Help"));
     help->addAction(openRPCConsoleAction);
     help->addSeparator();
     help->addAction(aboutAction);
     help->addAction(aboutQtAction);
 
-	// QString ss("QMenuBar::item { background-color: #effbef; color: black }"); 
+    // QString ss("QMenuBar::item { background-color: #effbef; color: black }"); 
     // appMenuBar->setStyleSheet(ss);
 }
 
@@ -425,10 +425,10 @@ void BitcoinGUI::createToolBars()
     toolbar->addAction(receiveCoinsAction);
     toolbar->addAction(historyAction);
     toolbar->addAction(addressBookAction);
-	
+
     QToolBar *toolbar2 = addToolBar(tr("Actions toolbar"));
     toolbar2->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	toolbar2->addAction(blockAction);
+    toolbar2->addAction(blockAction);
     toolbar2->addAction(openRPCConsoleAction);
     toolbar2->addAction(exportAction);
 }
@@ -457,7 +457,7 @@ void BitcoinGUI::setClientModel(ClientModel *clientModel)
 
             aboutAction->setIcon(QIcon(":/icons/toolbar_testnet"));
         }
-		
+
         // Create system tray menu (or setup the dock menu) that late to prevent users from calling actions, 
         // while the client has not yet fully loaded 
         if(trayIcon) 
@@ -662,7 +662,7 @@ void BitcoinGUI::setNumBlocks(int count, int nTotalBlocks)
         progressBar->setVisible(false);
     }
 
-	tooltip = tr("Current difficulty is %1.").arg(clientModel->GetDifficulty()) + QString("<br>") + tooltip;
+    tooltip = tr("Current difficulty is %1.").arg(clientModel->GetDifficulty()) + QString("<br>") + tooltip;
 
     QDateTime lastBlockDate = clientModel->getLastBlockDate();
     int secs = lastBlockDate.secsTo(QDateTime::currentDateTime());
@@ -878,10 +878,10 @@ void BitcoinGUI::gotoAddressBookPage()
 
 void BitcoinGUI::gotoBlockBrowser(QString transactionId)
 {
-	if(!transactionId.isEmpty())
-		blockBrowser->setTransactionId(transactionId);
-	
-	blockBrowser->show();
+    if(!transactionId.isEmpty())
+        blockBrowser->setTransactionId(transactionId);
+
+    blockBrowser->show();
 }
 
 void BitcoinGUI::gotoReceiveCoinsPage()
@@ -971,13 +971,13 @@ void BitcoinGUI::setEncryptionStatus(int status)
     case WalletModel::Unencrypted:
         labelEncryptionIcon->hide();
         encryptWalletAction->setChecked(false);
-		unlockWalletforposAction->setChecked(false);
-		unlockWalletAction->setChecked(false);
-		lockWalletAction->setChecked(false);
+        unlockWalletforposAction->setChecked(false);
+        unlockWalletAction->setChecked(false);
+        lockWalletAction->setChecked(false);
         encryptWalletAction->setEnabled(true);
-		unlockWalletforposAction->setEnabled(false);
-		unlockWalletAction->setEnabled(false);
-		lockWalletAction->setEnabled(false);
+        unlockWalletforposAction->setEnabled(false);
+        unlockWalletAction->setEnabled(false);
+        lockWalletAction->setEnabled(false);
         changePassphraseAction->setEnabled(false);
         disconnect(labelEncryptionIcon,SIGNAL(clicked()), this, SLOT(lockIconClicked()));labelEncryptionIcon->setToolTip(tr("Wallet is <b>not encrypted</b> and currently <b>unlocked</b>"));
 
@@ -987,30 +987,30 @@ void BitcoinGUI::setEncryptionStatus(int status)
         labelEncryptionIcon->setPixmap(QIcon(":/icons/lock_open").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
         labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked</b>"));
         encryptWalletAction->setChecked(true);
-		unlockWalletforposAction->setChecked(true);
-		unlockWalletAction->setChecked(true);
-		lockWalletAction->setChecked(false);
+        unlockWalletforposAction->setChecked(true);
+        unlockWalletAction->setChecked(true);
+        lockWalletAction->setChecked(false);
         encryptWalletAction->setEnabled(false); // TODO: decrypt currently not supported
-		unlockWalletforposAction->setEnabled(false);
-		unlockWalletAction->setEnabled(false);
-		lockWalletAction->setEnabled(true);
+        unlockWalletforposAction->setEnabled(false);
+        unlockWalletAction->setEnabled(false);
+        lockWalletAction->setEnabled(true);
         changePassphraseAction->setEnabled(true);
-		disconnect(labelEncryptionIcon,SIGNAL(clicked()), this, SLOT(lockIconClicked()));
+        disconnect(labelEncryptionIcon,SIGNAL(clicked()), this, SLOT(lockIconClicked()));
         break;
     case WalletModel::Locked:
         labelEncryptionIcon->show();
         labelEncryptionIcon->setPixmap(QIcon(":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
         labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>locked</b>"));
         encryptWalletAction->setChecked(true);
-		unlockWalletforposAction->setChecked(false);
-		unlockWalletAction->setChecked(false);
-		lockWalletAction->setChecked(true);
+        unlockWalletforposAction->setChecked(false);
+        unlockWalletAction->setChecked(false);
+        lockWalletAction->setChecked(true);
         encryptWalletAction->setEnabled(false); // TODO: decrypt currently not supported
-		unlockWalletforposAction->setEnabled(true);
-		unlockWalletAction->setEnabled(true);
-		lockWalletAction->setEnabled(false);
+        unlockWalletforposAction->setEnabled(true);
+        unlockWalletAction->setEnabled(true);
+        lockWalletAction->setEnabled(false);
         changePassphraseAction->setEnabled(true);
-		connect(labelEncryptionIcon,SIGNAL(clicked()), this, SLOT(lockIconClicked()));
+        connect(labelEncryptionIcon,SIGNAL(clicked()), this, SLOT(lockIconClicked()));
         break;
     }
 }
@@ -1029,8 +1029,8 @@ void BitcoinGUI::encryptWallet(bool status)
 
 void BitcoinGUI::checkWallet() 
 { 
-     int nMismatchSpent; 
-    int64 nBalanceInQuestion; 
+    int nMismatchSpent; 
+    int64_t nBalanceInQuestion; 
     int nOrphansFound; 
  
     if(!walletModel) 
@@ -1060,7 +1060,7 @@ void BitcoinGUI::checkWallet()
 void BitcoinGUI::repairWallet() 
 { 
     int nMismatchSpent; 
-    int64 nBalanceInQuestion; 
+    int64_t nBalanceInQuestion; 
     int nOrphansFound; 
  
     if(!walletModel) 
@@ -1292,13 +1292,13 @@ void BitcoinGUI::updateMintingIcon()
         labelMintingIcon->setToolTip(tr("Not minting because wallet is offline."));
         labelMintingIcon->setEnabled(false);
     }
-	
+
     else if (clientModel->getNumConnections() < 2 )
     {
         labelMintingIcon->setToolTip(tr("Not minting because wallet is still acquiring nodes."));
         labelMintingIcon->setEnabled(false);
     }
-	
+
     else if (IsInitialBlockDownload() || clientModel->getNumBlocks() < clientModel->getNumBlocksOfPeers())
     {
         labelMintingIcon->setToolTip(tr("Not minting because wallet is syncing."));
@@ -1311,7 +1311,7 @@ void BitcoinGUI::updateMintingIcon()
     }
     else if (nLastCoinStakeSearchInterval)
     {
-        uint64 nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight;
+        uint64_t nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight;
 
         QString text;
         if (nEstimateTime < 60)

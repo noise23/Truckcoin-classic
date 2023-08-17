@@ -224,7 +224,7 @@ void CoinControlDialog::customSelectCoins()
     double dCoinAmount = out.tx->vout[out.i].nValue; 
 
     //Coin Weight 
-    uint64 nTxWeight = 0; 
+    uint64_t nTxWeight = 0; 
     model->getStakeWeightFromValue(out.tx->GetTxTime(), out.tx->vout[out.i].nValue, nTxWeight); 
 
     //Age 
@@ -554,16 +554,16 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
         }
     }
 
-    QString sPriorityLabel      = "";
-    int64 nAmount               = 0;
-    int64 nPayFee               = 0;
-    int64 nAfterFee             = 0;
-    int64 nChange               = 0;
-    unsigned int nBytes         = 0;
-    unsigned int nBytesInputs   = 0;
-    double dPriority            = 0;
-    double dPriorityInputs      = 0;
-    unsigned int nQuantity      = 0;
+    QString sPriorityLabel        = "";
+    int64_t nAmount               = 0;
+    int64_t nPayFee               = 0;
+    int64_t nAfterFee             = 0;
+    int64_t nChange               = 0;
+    unsigned int nBytes           = 0;
+    unsigned int nBytesInputs     = 0;
+    double dPriority              = 0;
+    double dPriorityInputs        = 0;
+    unsigned int nQuantity        = 0;
     
     vector<COutPoint> vCoinControl;
     vector<COutput>   vOutputs;
@@ -606,10 +606,10 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
         sPriorityLabel = CoinControlDialog::getPriorityLabel(dPriority);
         
         // Fee
-        int64 nFee = nTransactionFee * (1 + (int64)nBytes / 1000);
+        int64_t nFee = nTransactionFee * (1 + (int64_t)nBytes / 1000);
         
         // Min Fee
-        int64 nMinFee = txDummy.GetMinFee(1, false, GMF_SEND, nBytes);
+        int64_t nMinFee = txDummy.GetMinFee(1, false, GMF_SEND, nBytes);
         
         nPayFee = max(nFee, nMinFee);
 
@@ -744,13 +744,13 @@ void CoinControlDialog::updateView()
             itemWalletAddress->setText(COLUMN_ADDRESS, sWalletAddress);
         }
 
-        int64 nSum = 0;
+        int64_t nSum = 0;
         double dPrioritySum = 0;
         int nChildren = 0;
         int nInputSum = 0;
-        uint64 nTxWeight = 0, nTxWeightSum = 0;
+        uint64_t nTxWeight = 0, nTxWeightSum = 0;
         GetLastBlockIndex(pindexBest, false);
-        int64 nBestHeight = pindexBest->nHeight;
+        int64_t nBestHeight = pindexBest->nHeight;
 
         for (const COutput& out : coins.second)
         {
@@ -806,9 +806,9 @@ void CoinControlDialog::updateView()
             itemOutput->setText(COLUMN_AMOUNT_INT64, strPad(QString::number(out.tx->vout[out.i].nValue), 15, " ")); // padding so that sorting works correctly
 
             // date
-            int64 nHeight = nBestHeight - out.nDepth;
+            int64_t nHeight = nBestHeight - out.nDepth;
             CBlockIndex* pindex = FindBlockByHeight(nHeight);
-            int64 nTime = pindex->nTime;
+            int64_t nTime = pindex->nTime;
             itemOutput->setText(COLUMN_DATE, QDateTime::fromTime_t(nTime).toString("yy-MM-dd hh:mm"));;
             
             // immature PoS reward
@@ -823,7 +823,7 @@ void CoinControlDialog::updateView()
             // priority
             double dPriority = ((double)out.tx->vout[out.i].nValue  / (nInputSize + 78)) * (out.nDepth+1); // 78 = 2 * 34 + 10
             itemOutput->setText(COLUMN_PRIORITY, CoinControlDialog::getPriorityLabel(dPriority));
-            itemOutput->setText(COLUMN_PRIORITY_INT64, strPad(QString::number((int64)dPriority), 20, " "));
+            itemOutput->setText(COLUMN_PRIORITY_INT64, strPad(QString::number((int64_t)dPriority), 20, " "));
             dPrioritySum += (double)out.tx->vout[out.i].nValue  * (out.nDepth+1);
             nInputSum    += nInputSize;
 
@@ -831,7 +831,7 @@ void CoinControlDialog::updateView()
             itemOutput->setText(COLUMN_WEIGHT, strPad(QString::number(nTxWeight), 8, " ")); 
 
             // Age 
-            int64 age = COIN * (GetTime() - nTime) / (1440 * 60); 
+            int64_t age = COIN * (GetTime() - nTime) / (1440 * 60); 
             itemOutput->setText(COLUMN_AGE, strPad(BitcoinUnits::formatAge(nDisplayUnit, age), 2, " ")); 
             itemOutput->setText(COLUMN_AGE_INT64, strPad(QString::number(age), 15, " ")); 
            
@@ -864,9 +864,9 @@ void CoinControlDialog::updateView()
             itemWalletAddress->setText(COLUMN_AMOUNT, BitcoinUnits::format(nDisplayUnit, nSum));
             itemWalletAddress->setText(COLUMN_AMOUNT_INT64, strPad(QString::number(nSum), 15, " "));
             itemWalletAddress->setText(COLUMN_PRIORITY, CoinControlDialog::getPriorityLabel(dPrioritySum));
-            itemWalletAddress->setText(COLUMN_PRIORITY_INT64, strPad(QString::number((int64)dPrioritySum), 20, " "));
+            itemWalletAddress->setText(COLUMN_PRIORITY_INT64, strPad(QString::number((int64_t)dPrioritySum), 20, " "));
             //Tree Mode Weight 
-            itemWalletAddress->setText(COLUMN_WEIGHT, strPad(QString::number((uint64)nTxWeightSum),8," ")); 
+            itemWalletAddress->setText(COLUMN_WEIGHT, strPad(QString::number((uint64_t)nTxWeightSum),8," ")); 
         }
     }
     
