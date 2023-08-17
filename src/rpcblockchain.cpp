@@ -52,9 +52,9 @@ double GetPoSKernelPS(const CBlockIndex* blockindex)
 
     const CBlockIndex* pindex = pindexBest;
     const CBlockIndex* pindexPrevStake = NULL;
-	
-	if (blockindex != NULL)
-		pindex = blockindex;
+
+    if (blockindex != NULL)
+        pindex = blockindex;
 
     while (pindex && nStakesHandled < nPoSInterval)
     {
@@ -112,8 +112,8 @@ Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool fPri
     result.push_back(Pair("version", block.nVersion));
     result.push_back(Pair("merkleroot", block.hashMerkleRoot.GetHex()));
     result.push_back(Pair("mint", ValueFromAmount(blockindex->nMint)));
-    result.push_back(Pair("time", (boost::int64_t)block.GetBlockTime()));
-    result.push_back(Pair("nonce", (boost::uint64_t)block.nNonce));
+    result.push_back(Pair("time", (int64_t)block.GetBlockTime()));
+    result.push_back(Pair("nonce", (uint64_t)block.nNonce));
     result.push_back(Pair("bits", HexBits(block.nBits)));
     result.push_back(Pair("difficulty", GetDifficulty(blockindex)));
     result.push_back(Pair("blocktrust", blockindex->GetBlockTrust().GetHex()));
@@ -129,7 +129,7 @@ Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool fPri
     result.push_back(Pair("modifier", strprintf("%016llx", blockindex->nStakeModifier)));
     result.push_back(Pair("modifierchecksum", strprintf("%08x", blockindex->nStakeModifierChecksum)));
     Array txinfo;
-    BOOST_FOREACH (const CTransaction& tx, block.vtx)
+    for (const CTransaction& tx : block.vtx)
     {
         if (fPrintTransactionDetail)
         {
@@ -201,7 +201,7 @@ Value getrawmempool(const Array& params, bool fHelp)
     mempool.queryHashes(vtxid);
 
     Array a;
-    BOOST_FOREACH(const uint256& hash, vtxid)
+    for (const uint256& hash : vtxid)
         a.push_back(hash.ToString());
 
     return a;

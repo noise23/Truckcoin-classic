@@ -34,13 +34,13 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     if (wtx.IsCoinStake())
     {
         TransactionRecord txrCoinStake = TransactionRecord(hash, nTime, TransactionRecord::StakeMint, "", -nDebit, wtx.GetValueOut());
-		CTxDestination address;
-		if (ExtractDestination(wtx.vout[1].scriptPubKey, address))
+        CTxDestination address;
+        if (ExtractDestination(wtx.vout[1].scriptPubKey, address))
         {
-			txrCoinStake.address = CBitcoinAddress(address).ToString();
+            txrCoinStake.address = CBitcoinAddress(address).ToString();
         }
-		
-		// Stake generation
+
+        // Stake generation
         parts.append(txrCoinStake);
     }
     else if (nNet > 0 || wtx.IsCoinBase())
@@ -48,7 +48,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         //
         // Credit
         //
-        BOOST_FOREACH(const CTxOut& txout, wtx.vout)
+        for (const CTxOut& txout : wtx.vout)
         {
             if(wallet->IsMine(txout))
             {
@@ -81,25 +81,25 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     else
     {
         bool fAllFromMe = true;
-        BOOST_FOREACH(const CTxIn& txin, wtx.vin)
+        for (const CTxIn& txin : wtx.vin)
             fAllFromMe = fAllFromMe && wallet->IsMine(txin);
 
         bool fAllToMe = true;
-        BOOST_FOREACH(const CTxOut& txout, wtx.vout)
+        for (const CTxOut& txout : wtx.vout)
             fAllToMe = fAllToMe && wallet->IsMine(txout);
 
         if (fAllFromMe && fAllToMe)
         {
             // Payment to self
             int64 nChange = wtx.GetChange();	
-			TransactionRecord sub(hash, nTime);
-			sub.type = TransactionRecord::SendToSelf;
-			sub.credit = nCredit - nChange;
-			sub.debit =  -(nDebit - nChange);		
-			CTxDestination address;
-			if (ExtractDestination(wtx.vout[0].scriptPubKey, address))
-				 sub.address = CBitcoinAddress(address).ToString();
-			parts.append(sub);
+            TransactionRecord sub(hash, nTime);
+            sub.type = TransactionRecord::SendToSelf;
+            sub.credit = nCredit - nChange;
+            sub.debit =  -(nDebit - nChange);		
+            CTxDestination address;
+            if (ExtractDestination(wtx.vout[0].scriptPubKey, address))
+                sub.address = CBitcoinAddress(address).ToString();
+            parts.append(sub);
         }
         else if (fAllFromMe)
         {
@@ -245,4 +245,3 @@ std::string TransactionRecord::getTxID()
 {
     return hash.ToString() + strprintf("-%03d", idx);
 }
-

@@ -58,8 +58,8 @@ Value gethashespersec(const Array& params, bool fHelp)
             "Returns a recent hashes per second performance measurement while generating.");
 
     if (GetTimeMillis() - nHPSTimerStart > 8000)
-        return (boost::int64_t)0;
-    return (boost::int64_t)dHashesPerSec;
+        return (int64_t)0;
+    return (int64_t)dHashesPerSec;
 }
 
 Value getmininginfo(const Array& params, bool fHelp)
@@ -107,7 +107,7 @@ Value GetNetworkHashPS(int lookup) {
     double timeDiff = pindexBest->GetBlockTime() - pindexPrev->GetBlockTime();
     double timePerBlock = timeDiff / lookup;
 
-    return (boost::int64_t)(((double)GetDifficulty() * pow(2.0, 32)) / timePerBlock);
+    return (int64_t)(((double)GetDifficulty() * pow(2.0, 32)) / timePerBlock);
 }
 
 Value getnetworkhashps(const Array& params, bool fHelp)
@@ -207,7 +207,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
     map<uint256, int64_t> setTxIndex;
     int i = 0;
     CTxDB txdb("r");
-    BOOST_FOREACH (CTransaction& tx, pblock->vtx)
+    for (CTransaction& tx : pblock->vtx)
     {
         uint256 txHash = tx.GetHash();
         setTxIndex[txHash] = i++;
@@ -231,7 +231,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
             entry.push_back(Pair("fee", (int64_t)(tx.GetValueIn(mapInputs) - tx.GetValueOut())));
 
             Array deps;
-            BOOST_FOREACH (MapPrevTx::value_type& inp, mapInputs)
+            for (MapPrevTx::value_type& inp : mapInputs)
             {
                 if (setTxIndex.count(inp.first))
                     deps.push_back(setTxIndex[inp.first]);
