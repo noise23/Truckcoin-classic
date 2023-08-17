@@ -73,7 +73,7 @@ namespace Checkpoints
 
         for(auto it = checkpoints.rbegin(); it != checkpoints.rend(); ++it)
         {
-            const uint256& hash = it->second.first;
+            const uint256& hash = it->second;
             auto t = mapBlockIndex.find(hash);
             if (t != mapBlockIndex.end())
                 return t->second;
@@ -284,7 +284,7 @@ namespace Checkpoints
 
         for(auto it = mapCheckpoints.rbegin(); it != mapCheckpoints.rend(); ++it)
         {
-            const uint256& hash = it->second.first;
+            const uint256& hash = it->second;
             if (mapBlockIndex.count(hash) && mapBlockIndex[hash]->IsInMainChain())
             {
                 if (!WriteSyncCheckpoint(hash))
