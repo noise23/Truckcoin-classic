@@ -121,6 +121,7 @@ extern std::map<unsigned int, unsigned int> mapHashedBlocks;
 // Settings
 extern int64_t nTransactionFee;
 extern int64_t nSplitThreshold;
+extern bool fUseFastIndex;
 
 // Minimum disk space required - used in CheckDiskSpace()
 static const uint64_t nMinDiskSpace = 52428800;
@@ -1520,6 +1521,11 @@ public:
         return (pnext || this == pindexBest);
     }
 
+    bool CheckIndex() const
+    {
+        return true;
+    }
+
     enum { nMedianTimeSpan=11 };
 
     int64_t GetMedianTimePast() const
@@ -1676,7 +1682,7 @@ public:
 
     uint256 GetBlockHash() const
     {
-        if ((nTime < GetAdjustedTime() - 24 * 60 * 60) && blockHash != 0)
+        if (fUseFastIndex && (nTime < GetAdjustedTime() - 24 * 60 * 60) && blockHash != 0)
             return blockHash;
 
         CBlock block;

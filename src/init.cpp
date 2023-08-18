@@ -5,7 +5,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "init.h"
-#include "db.h"
+#include "txdb.h"
 #include "walletdb.h"
 #include "bitcoinrpc.h"
 #include "net.h"
@@ -32,6 +32,7 @@ CClientUIInterface uiInterface;
 unsigned int nNodeLifespan;
 std::string strWalletFileName;
 enum Checkpoints::CPMode CheckpointsMode;
+bool fUseFastIndex;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -81,6 +82,7 @@ void Shutdown(void* parg)
     {
         fShutdown = true;
         nTransactionsUpdated++;
+//        CTxDB().Close();
         bitdb.Flush(false);
         StopNode();
         bitdb.Flush(true);
@@ -378,9 +380,11 @@ bool AppInit2()
 
     // ********************************************************* Step 2: parameter interactions
 
-	nNodeLifespan = GetArg("-addrlifespan", 7);
-	
-	CheckpointsMode = Checkpoints::STRICT; 
+    fUseFastIndex = GetBoolArg("-fastindex", true);
+
+    nNodeLifespan = GetArg("-addrlifespan", 7);
+
+    CheckpointsMode = Checkpoints::STRICT; 
     std::string strCpMode = GetArg("-cppolicy", "strict"); 
  
     if(strCpMode == "strict") 
@@ -463,13 +467,6 @@ bool AppInit2()
             nConnectTimeout = nNewTimeout;
     }
 
-    // Continue to put "/P2SH/" in the coinbase to monitor
-    // BIP16 support.
-    // This can be removed eventually...
-    const char* pszP2SH = "/P2SH/";
-    COINBASE_FLAGS << std::vector<unsigned char>(pszP2SH, pszP2SH+strlen(pszP2SH));
-
-
     if (mapArgs.count("-paytxfee"))
     {
         if (!ParseMoney(mapArgs["-paytxfee"], nTransactionFee))
@@ -477,7 +474,7 @@ bool AppInit2()
         if (nTransactionFee > 0.25 * COIN)
             InitWarning(_("Warning: -paytxfee is set very high! This is the transaction fee you will pay if you send a transaction."));
     }
-	
+
     // Controls proof-of-stake generation 
     fStaking = GetBoolArg("-staking", true);
 
@@ -873,6 +870,7 @@ bool AppInit2()
             if (file)
                 LoadExternalBlockFile(file);
         }
+                exit(0);
     }
 
     boost::filesystem::path pathBootstrap = GetDataDir() / "bootstrap.dat";

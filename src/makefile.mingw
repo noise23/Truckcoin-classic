@@ -64,6 +64,7 @@ OBJS= \
     obj/crypter.o \
     obj/key.o \
     obj/pubkey.o \
+    obj/txdb.o \
     obj/db.o \
     obj/init.o \
     obj/keystore.o \
@@ -115,6 +116,14 @@ DEFS += $(addprefix -I,$(CURDIR)/secp256k1/include)
 secp256k1/src/libsecp256k1_la-secp256k1.o:
 	@echo "Building Secp256k1 ..."; cd secp256k1; chmod 755 *; ./autogen.sh; ./configure --disable-shared --with-pic --enable-benchmark=no --enable-tests=no --enable-exhaustive-tests=no --enable-module-recovery --enable-module-schnorrsig --enable-experimental; make; cd ..;
 truckcoind: secp256k1/src/libsecp256k1_la-secp256k1.o
+
+# build leveldb
+LIBS += $(CURDIR)/leveldb/out-static/libleveldb.a $(CURDIR)/leveldb/out-static/libmemenv.a -lshlwapi
+DEFS += $(addprefix -I,$(CURDIR)/leveldb/include)
+DEFS += $(addprefix -I,$(CURDIR)/leveldb/helpers)
+leveldb/out-static/libleveldb.a:
+	cd leveldb; make out-static/libleveldb.a out-static/libmemenv.a; cd ..
+obj/txdb.o: leveldb/out-static/libleveldb.a
 
 obj/%.o: %.cpp $(HEADERS)
 	g++ -c $(CFLAGS) -o $@ $<
