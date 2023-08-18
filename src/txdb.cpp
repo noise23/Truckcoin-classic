@@ -35,14 +35,16 @@ static leveldb::Options GetOptions() {
 void init_blockindex(leveldb::Options& options, bool fRemoveOld = false) {
     // First time init.
     boost::filesystem::path directory = GetDataDir() / "txdb";
+    boost::filesystem::path blocksdirectory = GetDataDir() / "blocks";
 
     if (fRemoveOld) {
         boost::filesystem::remove_all(directory); // remove directory
+        boost::filesystem::remove_all(blocksdirectory); // remove directory
         unsigned int nFile = 1;
 
         while (true)
         {
-            boost::filesystem::path strBlockFile = GetDataDir() / strprintf("blk%04u.dat", nFile);
+            boost::filesystem::path strBlockFile = GetDataDir() / "blocks" / strprintf("blk%04u.dat", nFile);
 
             // Break if no such file
             if( !boost::filesystem::exists( strBlockFile ) )
@@ -55,6 +57,7 @@ void init_blockindex(leveldb::Options& options, bool fRemoveOld = false) {
     }
 
     boost::filesystem::create_directory(directory);
+    boost::filesystem::create_directory(blocksdirectory);
     printf("Opening LevelDB in %s\n", directory.string().c_str());
     leveldb::Status status = leveldb::DB::Open(options, directory.string(), &txdb);
     if (!status.ok()) {

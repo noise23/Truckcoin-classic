@@ -39,6 +39,8 @@ static const unsigned int MAX_BLOCK_SIGOPS = MAX_BLOCK_SIZE/50;
 static const unsigned int MAX_ORPHAN_TRANSACTIONS = MAX_BLOCK_SIZE/100;
 /** The maximum number of entries in an 'inv' protocol message */
 static const unsigned int MAX_INV_SZ = 30000;
+/** The maximum size for blkxxxx.dat files */
+static const unsigned int MAX_BLOCKFILE_SIZE = 0x8000000; // 128 MiB
 /** Fees smaller than this (in satoshi) are considered zero fee (for transaction creation) */
 static const int64_t MIN_TX_FEE = .00001 * COIN;
 /** Fees smaller than this (in satoshi) are considered zero fee (for relaying) */

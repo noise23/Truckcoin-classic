@@ -2492,7 +2492,7 @@ bool CheckDiskSpace(uint64_t nAdditionalBytes)
 static filesystem::path BlockFilePath(unsigned int nFile)
 {
     string strBlockFn = strprintf("blk%04u.dat", nFile);
-    return GetDataDir() / strBlockFn;
+    return GetDataDir() / "blocks" / strBlockFn;
 }
 
 FILE* OpenBlockFile(unsigned int nFile, unsigned int nBlockPos, const char* pszMode)
@@ -2525,8 +2525,7 @@ FILE* AppendBlockFile(unsigned int& nFileRet)
             return NULL;
         if (fseek(file, 0, SEEK_END) != 0)
             return NULL;
-        // FAT32 file size max 4GB, fseek and ftell max 2GB, so we must stay under 2GB
-        if (ftell(file) < (long)(0x7F000000 - MAX_SIZE))
+        if (ftell(file) < MAX_BLOCKFILE_SIZE)
         {
             nFileRet = nCurrentBlockFile;
             return file;
