@@ -87,7 +87,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 {
     updateStyle();
     resize(860, 600);
-    setWindowTitle(tr("Truckcoin") + " - " + tr("Wallet ") + QString::fromStdString(FormatFullVersion()));
+    setWindowTitle(tr("Truckcoin Classic ") + QString::fromStdString(FormatFullVersion()));
 #ifndef Q_OS_MAC
     qApp->setWindowIcon(QIcon(":icons/bitcoin"));
     setWindowIcon(QIcon(":icons/bitcoin"));
