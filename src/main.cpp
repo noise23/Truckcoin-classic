@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2012 The Bitcoin developers
-// Copyright (c) 2013-2019 The Truckcoin developers
+// Copyright (c) 2013-2024 The Truckcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -2919,12 +2919,9 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 
     if (strCommand == "version")
     {
-        // Each connection can only send one version message
-        if (pfrom->nVersion != 0)
-        {
-            pfrom->Misbehaving(1);
-            return false;
-        }
+        /* Process the 1st version message received per connection
+         * and ignore the others if any */
+        if(pfrom->nVersion) return(true);
 
         int64_t nTime;
         CAddress addrMe;
@@ -2938,7 +2935,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
             pfrom->fDisconnect = true;
             return false;
         }
-		
+
         if (pfrom->nVersion == 10300)
             pfrom->nVersion = 300;
         if (!vRecv.empty())
@@ -3003,15 +3000,12 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
             }
         }
 
-        // Ask the first connected node for block updates
-        static int nAskedForBlocks = 0;
+        /* Ask for inventory */
         if (!pfrom->fClient && !pfrom->fOneShot &&
-            (pfrom->nStartingHeight > (nBestHeight - 144)) &&
             (pfrom->nVersion < NOBLKS_VERSION_START ||
              pfrom->nVersion >= NOBLKS_VERSION_END) &&
-             (nAskedForBlocks < 1 || vNodes.size() <= 1))
+             (pfrom->nStartingHeight > nBestHeight))
         {
-            nAskedForBlocks++;
             pfrom->PushGetBlocks(pindexBest, uint256(0));
         }
 
@@ -3031,23 +3025,13 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 
         pfrom->fSuccessfullyConnected = true;
 
-        printf("receive version message: version %d, blocks=%d, us=%s, them=%s, peer=%s\n", pfrom->nVersion, pfrom->nStartingHeight, addrMe.ToString().c_str(), addrFrom.ToString().c_str(), pfrom->addr.ToString().c_str());
+        printf("received version message from %s, version %d, blocks=%d, us=%s, them=%s\n", pfrom->addr.ToString().c_str(), pfrom->nVersion, pfrom->nStartingHeight, addrMe.ToString().c_str(), addrFrom.ToString().c_str());
 
         cPeerBlockCounts.input(pfrom->nStartingHeight);
-		
-	 // Be more aggressive with blockchain download. Send new getblocks() message after connection 
-	 // to new node if waited longer than MAX_TIME_SINCE_BEST_BLOCK. 
-	 int64_t TimeSinceBestBlock = GetTime() - nTimeBestReceived; 
-	 if (TimeSinceBestBlock > MAX_TIME_SINCE_BEST_BLOCK) { 
-	  	printf("INFO: Waiting %" PRId64 " sec which is too long. Sending GetBlocks(0)\n", TimeSinceBestBlock); 
-		pfrom->PushGetBlocks(pindexBest, uint256(0)); 
-  	 } 
 
-        // ask for pending sync-checkpoint if any
-        if (!IsInitialBlockDownload())
-            Checkpoints::AskForPendingSyncCheckpoint(pfrom);
+        if(!IsInitialBlockDownload())
+          Checkpoints::AskForPendingSyncCheckpoint(pfrom);
     }
-
 
     else if (pfrom->nVersion == 0)
     {
@@ -3207,16 +3191,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
                     CBlock block;
                     block.ReadFromDisk((*mi).second);
                     pfrom->PushMessage("block", block);
-
-                    // Trigger them to send a getblocks request for the next batch of inventory
-                    if (inv.hash == pfrom->hashContinue)
-                    {
-                        vector<CInv> vInv;
-                        vInv.push_back(CInv(MSG_BLOCK, hashBestChain));
-
-                        pfrom->PushMessage("inv", vInv);
-                        pfrom->hashContinue = 0;
-                    }
                 }
             }
             else if (inv.IsKnownType())
@@ -3254,30 +3228,63 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         uint256 hashStop;
         vRecv >> locator >> hashStop;
 
-        // Find the last block the caller has in the main chain
-        CBlockIndex* pindex = locator.GetBlockIndex();
+        /* Time limit for responding to a particular peer */
+        uint nCurrentTime = (uint)GetTime();
+        if((nCurrentTime - 5U) < pfrom->nGetblocksReceiveTime) {
+            return(error("message getblocks spam"));
+        } else {
+            pfrom->nGetblocksReceiveTime = nCurrentTime;
+        }
 
-        // Send the rest of the chain
-        if (pindex)
-            pindex = pindex->pnext;
-        int nLimit = 1250;
-        printf("getblocks %d to %s limit %d\n", (pindex ? pindex->nHeight : -1), hashStop.ToString().substr(0,20).c_str(), nLimit);
-        for (; pindex; pindex = pindex->pnext)
-        {
-            if (pindex->GetBlockHash() == hashStop)
-            {
-                printf("  getblocks stopping at %d %s\n", pindex->nHeight, pindex->GetBlockHash().ToString().substr(0,20).c_str());
+        /* Locate the best block of the caller that matches our chain;
+         * it must be the genesis block if no match */
+        CBlockIndex *pindex = locator.GetBlockIndex();
+
+        /* Start with the next block if available */
+        if(pindex->pnext) pindex = pindex->pnext;
+        else return(true);
+
+        if(hashStop != uint256(0)) {
+            printf("getblocks height %d up to block %s received from peer %s\n",
+              pindex->nHeight, hashStop.ToString().substr(0,20).c_str(),
+              pfrom->addr.ToString().c_str());
+        } else {
+            printf("getblocks height %d received from peer %s\n",
+              pindex->nHeight, pfrom->addr.ToString().c_str());
+        }
+
+        /* Send inventory on the rest of the chain up to the limit */
+        uint nLimit = 1000;
+
+        while(nLimit--) {
+
+            if(pindex->GetBlockHash() == hashStop) {
+                printf("getblocks stopping at height %d block %s for peer %s\n",
+                  pindex->nHeight, pindex->GetBlockHash().ToString().substr(0,20).c_str(),
+                  pfrom->addr.ToString().c_str());
                 break;
             }
+
             pfrom->PushInventory(CInv(MSG_BLOCK, pindex->GetBlockHash()));
-            if (--nLimit <= 0)
-            {
-                // When this block is requested, we'll send an inv that'll make them
-                // getblocks the next batch of inventory.
-                printf("  getblocks stopping at limit %d %s\n", pindex->nHeight, pindex->GetBlockHash().ToString().substr(0,20).c_str());
-                pfrom->hashContinue = pindex->GetBlockHash();
-                break;
-            }
+
+            if(pindex->pnext) pindex = pindex->pnext;
+            else break;
+
+        }
+
+        if(!nLimit) {
+            printf("getblocks height %d block %s stopping at limit for peer %s\n",
+              pindex->nHeight, pindex->GetBlockHash().ToString().substr(0,20).c_str(),
+              pfrom->addr.ToString().c_str());
+        }
+
+        /* Advertise our best block */
+        if(((pindexBest->nHeight - pindex->nHeight) < 4000) &&
+          (pindex->GetBlockHash() != hashBestChain)) {
+            pfrom->PushInventory(CInv(MSG_BLOCK, hashBestChain));
+            printf("getblocks advertised height %d block %s to peer %s\n",
+              nBestHeight, hashBestChain.ToString().substr(0,20).c_str(),
+              pfrom->addr.ToString().c_str());
         }
     }
     else if (strCommand == "checkpoint")
@@ -3301,6 +3308,14 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         uint256 hashStop;
         vRecv >> locator >> hashStop;
 
+        /* Time limit for responding to a particular peer */
+        uint nCurrentTime = (uint)GetTime();
+        if((nCurrentTime - 5U) < pfrom->nGetheadersReceiveTime) {
+            return(error("message getheaders spam"));
+        } else {
+            pfrom->nGetheadersReceiveTime = nCurrentTime;
+        }
+
         CBlockIndex* pindex = NULL;
         if (locator.IsNull())
         {
@@ -3319,7 +3334,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         }
 
         vector<CBlock> vHeaders;
-        int nLimit = 2000;
+        int nLimit = 4000;
         printf("getheaders %d to %s\n", (pindex ? pindex->nHeight : -1), hashStop.ToString().substr(0,20).c_str());
         for (; pindex; pindex = pindex->pnext)
         {
@@ -3396,31 +3411,30 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         if (tx.nDoS) pfrom->Misbehaving(tx.nDoS);
     }
 
-
     else if (strCommand == "block")
     {
         CBlock block;
         vRecv >> block;
         uint256 hashBlock = block.GetHash();
+        int nBlockHeight = block.GetBlockHeight();
 
-        printf("received block %s\n", hashBlock.ToString().substr(0,20).c_str());
-        // block.print();
+        if(nBlockHeight > (nBestHeight + 5000)) {
+            /* Discard this block because cannot verify it any time soon */
+            printf("received and discarded a distant block %s height %d\n",
+              hashBlock.ToString().substr(0,20).c_str(), nBlockHeight);
+        } else {
+            printf("received block %s height %d\n",
+              hashBlock.ToString().substr(0,20).c_str(), nBlockHeight);
 
-        CInv inv(MSG_BLOCK, hashBlock);
-        pfrom->AddInventoryKnown(inv);
+            CInv inv(MSG_BLOCK, hashBlock);
+            pfrom->AddInventoryKnown(inv);
 
-        if (ProcessBlock(pfrom, &block)) { 
-            mapAlreadyAskedFor.erase(inv); 
-        } else { 
-        // Be more aggressive with blockchain download. Send getblocks() message after 
-        // an error related to new block download. 
-            int64_t TimeSinceBestBlock = GetTime() - nTimeBestReceived; 
-        if (TimeSinceBestBlock > MAX_TIME_SINCE_BEST_BLOCK) { 
-            printf("INFO: Waiting %" PRId64 " sec which is too long. Sending GetBlocks(0)\n", TimeSinceBestBlock); 
-                pfrom->PushGetBlocks(pindexBest, uint256(0)); 
-            } 
-        } 
-            if (block.nDoS) pfrom->Misbehaving(block.nDoS);
+            if(ProcessBlock(pfrom, &block))
+              mapAlreadyAskedFor.erase(inv);
+
+            if(block.nDoS)
+              pfrom->Misbehaving(block.nDoS);
+        }
     }
 
     else if (strCommand == "getaddr")
@@ -3433,7 +3447,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
             if(addr.nTime > nCutOff)
                 pfrom->PushAddress(addr);
     }
-
 
     else if (strCommand == "mempool")
     {
@@ -3450,71 +3463,25 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
             pfrom->PushMessage("inv", vInv);
     }
 
-
-    else if (strCommand == "checkorder")
-    {
-        uint256 hashReply;
-        vRecv >> hashReply;
-
-        if (!GetBoolArg("-allowreceivebyip"))
-        {
-            pfrom->PushMessage("reply", hashReply, (int)2, string(""));
-            return true;
-        }
-
-        CWalletTx order;
-        vRecv >> order;
-
-        /// we have a chance to check the order here
-
-        // Keep giving the same key to the same ip until they use it
-        if (!mapReuseKey.count(pfrom->addr))
-            pwalletMain->GetKeyFromPool(mapReuseKey[pfrom->addr], true);
-
-        // Send back approval of order and pubkey to use
-        CScript scriptPubKey;
-        scriptPubKey << mapReuseKey[pfrom->addr] << OP_CHECKSIG;
-        pfrom->PushMessage("reply", hashReply, (int)0, scriptPubKey);
+    else if(strCommand == "ping") {
+        int64_t nonce;
+        vRecv >> nonce;
+        pfrom->PushMessage("pong", nonce);
+        if(fDebug) printf("pong sent to peer %s nonce %" PRId64 "\n",
+          pfrom->addr.ToString().c_str(), nonce);
     }
 
-
-    else if (strCommand == "reply")
-    {
-        uint256 hashReply;
-        vRecv >> hashReply;
-
-        CRequestTracker tracker;
-        {
-            LOCK(pfrom->cs_mapRequests);
-            map<uint256, CRequestTracker>::iterator mi = pfrom->mapRequests.find(hashReply);
-            if (mi != pfrom->mapRequests.end())
-            {
-                tracker = (*mi).second;
-                pfrom->mapRequests.erase(mi);
-            }
-        }
-        if (!tracker.IsNull())
-            tracker.fn(tracker.param1, vRecv);
-    }
-
-    else if (strCommand == "ping")
-    {
-        if (pfrom->nVersion > BIP0031_VERSION)
-        {
-            uint64_t nonce = 0;
-            vRecv >> nonce;
-            // Echo the message back with the nonce. This allows for two useful features:
-            //
-            // 1) A remote node can quickly check if the connection is operational
-            // 2) Remote nodes can measure the latency of the network thread. If this node
-            //    is overloaded it won't respond to pings quickly and the remote node can
-            //    avoid sending us more work, like chain download requests.
-            //
-            // The nonce stops the remote getting confused between different pings: without
-            // it, if the remote node sends a ping once per second and this node takes 5
-            // seconds to respond to each, the 5th ping the remote sends would appear to
-            // return very quickly.
-            pfrom->PushMessage("pong", nonce);
+    else if(strCommand == "pong") {
+        int64_t nonce;
+        vRecv >> nonce;
+        if(pfrom->nPingStamp == nonce) {
+            pfrom->nPongStamp = nonce;
+            pfrom->nPingTime = (uint)((GetTimeMicros() - nonce) / 1000);
+            if(fDebug) printf("pong received from peer %s time %u ms\n",
+              pfrom->addr.ToString().c_str(), pfrom->nPingTime);
+        } else {
+            if(fDebug) printf("invalid pong received from peer %s nonce %" PRId64 "\n",
+              pfrom->addr.ToString().c_str(), nonce);
         }
     }
 
@@ -3580,7 +3547,7 @@ bool ProcessMessages(CNode* pfrom)
     //
 
     bool fOk = true;
-	
+
     std::deque<CNetMessage>::iterator it = pfrom->vRecvMsg.begin();
     while (!pfrom->fDisconnect && it != pfrom->vRecvMsg.end()) {
         // Don't bother if send buffer is too full to respond anyway
@@ -3598,7 +3565,7 @@ bool ProcessMessages(CNode* pfrom)
         // end, if an incomplete message is found		
         if (!msg.complete())
             break;
-			
+
         // at this point, any failure means we can delete the current message
         it++;
 
@@ -3678,22 +3645,44 @@ bool ProcessMessages(CNode* pfrom)
     return fOk;
 }
 
-bool SendMessages(CNode* pto, bool fSendTrickle)
-{
-    TRY_LOCK(cs_main, lockMain);
-    if (lockMain) {
-        // Don't send anything until we get their version message
-        if (pto->nVersion == 0)
-            return true;
+/* Time stamp of the last getblocks polling request */
+uint nGetblocksTimePolling = 0;
 
-        // Keep-alive ping. We send a nonce of zero because we don't use it anywhere
-        // right now.
-        if (pto->nLastSend && GetTime() - pto->nLastSend > 30 * 60 && pto->vSendMsg.empty()) {
-            uint64_t nonce = 0;
-            if (pto->nVersion > BIP0031_VERSION)
-                pto->PushMessage("ping", nonce);
-            else
-                pto->PushMessage("ping");
+bool SendMessages(CNode *pto, bool fSendTrickle) {
+
+    /* Valid version must be received first */
+    if(pto->nVersion < 1) return(true);
+
+    TRY_LOCK(cs_main, lockMain);
+    if(lockMain) {
+        int64_t nCurrentTime = GetTimeMicros();
+
+        /* Keep-alive ping using an arbitrary nonce which is an extended time stamp */
+        if(((nCurrentTime - pto->nPingStamp) > 60 * 1000000) && pto->ssSend.empty()) {
+            pto->nPingStamp = nCurrentTime;
+            pto->PushMessage("ping", nCurrentTime);
+            if(fDebugNet) printf("ping sent to peer %s nonce %" PRId64 "\n",
+              pto->addr.ToString().c_str(), nCurrentTime);
+        }
+
+        /* Disconnect if the peer hasn't responded to pings recently */
+        if(pto->nPingTime && ((pto->nPingStamp - pto->nPongStamp) > 5 * 60 * 1000000)) {
+            pto->fDisconnect = true;
+            printf("disconnecting peer %s due to pings timed out\n",
+              pto->addr.ToString().c_str());
+            return(true);
+        }
+
+        /* Convert to seconds */
+        nCurrentTime /= 1000000;
+
+        /* Ask a random peer for inventory */
+        if(fSendTrickle && IsInitialBlockDownload() &&
+          (nBestHeight < pto->nStartingHeight) &&
+          ((nCurrentTime - nTimeBestReceived) > 1LL) &&
+          ((nCurrentTime - nGetblocksTimePolling) > 1LL)) {
+            nGetblocksTimePolling = nCurrentTime;
+            pto->PushGetBlocks(pindexBest, uint256(0));
         }
 
         // Resend wallet transactions that haven't gotten in a block yet

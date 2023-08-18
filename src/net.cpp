@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2012 The Bitcoin developers
-// Copyright (c) 2013-2019 The Truckcoin developers
+// Copyright (c) 2013-2024 The Truckcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -26,7 +26,7 @@
 using namespace std;
 using namespace boost;
 
-static const int MAX_OUTBOUND_CONNECTIONS = 12;
+static const int MAX_OUTBOUND_CONNECTIONS = 32;
 
 void ThreadMessageHandler2(void* parg);
 void ThreadSocketHandler2(void* parg);
@@ -91,13 +91,18 @@ unsigned short GetListenPort()
 
 void CNode::PushGetBlocks(CBlockIndex* pindexBegin, uint256 hashEnd)
 {
-    // Filter out duplicate requests
-    if (pindexBegin == pindexLastGetBlocksBegin && hashEnd == hashLastGetBlocksEnd)
-        return;
-    pindexLastGetBlocksBegin = pindexBegin;
-    hashLastGetBlocksEnd = hashEnd;
+    uint nCurrentTime = (uint)GetTime();
+
+    /* Time limit for asking a particular peer */
+    if((nCurrentTime - 5U) < nGetblocksAskTime)
+      return;
+    else
+      nGetblocksAskTime = nCurrentTime;
 
     PushMessage("getblocks", CBlockLocator(pindexBegin), hashEnd);
+
+    printf("getblocks height %d sent to peer %s\n",
+      pindexBegin->nHeight, addr.ToString().c_str());
 }
 
 // find 'best' local address for a particular peer
@@ -628,9 +633,10 @@ void CNode::copyStats(CNodeStats &stats)
     X(strSubVer);
     X(fInbound);
     X(nReleaseTime);
+    X(nPingTime);
     X(nStartingHeight);
     X(nMisbehavior);
-	X(nSendBytes); 
+    X(nSendBytes); 
     X(nRecvBytes); 
     X(nBlocksRequested); 
 }
@@ -1671,13 +1677,6 @@ bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOu
     return true;
 }
 
-
-
-
-
-
-
-
 void ThreadMessageHandler(void* parg)
 {
     // Make this thread recognisable as the message handling thread
@@ -1713,10 +1712,11 @@ void ThreadMessageHandler2(void* parg)
                 pnode->AddRef();
         }
 
-        // Poll the connected nodes for messages
-        CNode* pnodeTrickle = NULL;
-        if (!vNodesCopy.empty())
-            pnodeTrickle = vNodesCopy[GetRand(vNodesCopy.size())];
+        /* Random peer */
+        CNode *pnodeTrickle = NULL;
+        if(!vNodesCopy.empty())
+          pnodeTrickle = vNodesCopy[GetRand(vNodesCopy.size())];
+
         for (CNode* pnode : vNodesCopy)
         {
             if (pnode->fDisconnect)
@@ -2087,26 +2087,26 @@ void RelayTransaction(const CTransaction& tx, const uint256& hash, const CDataSt
     RelayInventory(inv);
 }
 
-void CNode::RecordBytesRecv(uint64_t bytes) 
-{ 
-    LOCK(cs_totalBytesRecv); 
-    nTotalBytesRecv += bytes; 
-} 
- 
-void CNode::RecordBytesSent(uint64_t bytes) 
-{ 
-    LOCK(cs_totalBytesSent); 
-    nTotalBytesSent += bytes; 
-} 
- 
-uint64_t CNode::GetTotalBytesRecv() 
-{ 
-    LOCK(cs_totalBytesRecv); 
-    return nTotalBytesRecv; 
-} 
- 
-uint64_t CNode::GetTotalBytesSent() 
-{ 
-    LOCK(cs_totalBytesSent); 
-    return nTotalBytesSent; 
-} 
+void CNode::RecordBytesRecv(uint64_t bytes)
+{
+    LOCK(cs_totalBytesRecv);
+    nTotalBytesRecv += bytes;
+}
+
+void CNode::RecordBytesSent(uint64_t bytes)
+{
+    LOCK(cs_totalBytesSent);
+    nTotalBytesSent += bytes;
+}
+
+uint64_t CNode::GetTotalBytesRecv()
+{
+    LOCK(cs_totalBytesRecv);
+    return nTotalBytesRecv;
+}
+
+uint64_t CNode::GetTotalBytesSent()
+{
+    LOCK(cs_totalBytesSent);
+    return nTotalBytesSent;
+}
