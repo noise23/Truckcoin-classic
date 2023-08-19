@@ -845,7 +845,7 @@ void CWallet::ReacceptWalletTransactions()
         LOCK(cs_wallet);
         fRepeat = false;
         vector<CDiskTxPos> vMissingTx;
-        for (std::pair<const uint256, CWalletTx>& item : mapWallet)
+        for (auto& item : mapWallet)
         {
             CWalletTx& wtx = item.second;
             if ((wtx.IsCoinBase() && wtx.IsSpent(0)) || (wtx.IsCoinStake() && wtx.IsSpent(1)))
@@ -1452,7 +1452,7 @@ bool CWallet::GetStakeWeight(const CKeyStore& keystore, uint64_t& nMinWeight, ui
         return false;
 
     CTxDB txdb("r");
-    for (std::pair<const CWalletTx*, unsigned int> pcoin : setCoins)
+    for (auto pcoin : setCoins)
     {
         CTxIndex txindex;
         {

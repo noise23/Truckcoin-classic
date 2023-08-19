@@ -137,8 +137,6 @@ inline unsigned int GetSerializeSize(signed short a,   int, int=0) { return size
 inline unsigned int GetSerializeSize(unsigned short a, int, int=0) { return sizeof(a); }
 inline unsigned int GetSerializeSize(signed int a,     int, int=0) { return sizeof(a); }
 inline unsigned int GetSerializeSize(unsigned int a,   int, int=0) { return sizeof(a); }
-//inline unsigned int GetSerializeSize(signed long a,    int, int=0) { return sizeof(a); }
-//inline unsigned int GetSerializeSize(unsigned long a,  int, int=0) { return sizeof(a); }
 inline unsigned int GetSerializeSize(int64_t a,          int, int=0) { return sizeof(a); }
 inline unsigned int GetSerializeSize(uint64_t a,         int, int=0) { return sizeof(a); }
 inline unsigned int GetSerializeSize(float a,          int, int=0) { return sizeof(a); }
@@ -151,8 +149,6 @@ template<typename Stream> inline void Serialize(Stream& s, signed short a,   int
 template<typename Stream> inline void Serialize(Stream& s, unsigned short a, int, int=0) { WRITEDATA(s, a); }
 template<typename Stream> inline void Serialize(Stream& s, signed int a,     int, int=0) { WRITEDATA(s, a); }
 template<typename Stream> inline void Serialize(Stream& s, unsigned int a,   int, int=0) { WRITEDATA(s, a); }
-//template<typename Stream> inline void Serialize(Stream& s, signed long a,    int, int=0) { WRITEDATA(s, a); }
-//template<typename Stream> inline void Serialize(Stream& s, unsigned long a,  int, int=0) { WRITEDATA(s, a); }
 template<typename Stream> inline void Serialize(Stream& s, int64_t a,          int, int=0) { WRITEDATA(s, a); }
 template<typename Stream> inline void Serialize(Stream& s, uint64_t a,         int, int=0) { WRITEDATA(s, a); }
 template<typename Stream> inline void Serialize(Stream& s, float a,          int, int=0) { WRITEDATA(s, a); }
@@ -165,8 +161,6 @@ template<typename Stream> inline void Unserialize(Stream& s, signed short& a,   
 template<typename Stream> inline void Unserialize(Stream& s, unsigned short& a, int, int=0) { READDATA(s, a); }
 template<typename Stream> inline void Unserialize(Stream& s, signed int& a,     int, int=0) { READDATA(s, a); }
 template<typename Stream> inline void Unserialize(Stream& s, unsigned int& a,   int, int=0) { READDATA(s, a); }
-//template<typename Stream> inline void Unserialize(Stream& s, signed long& a,    int, int=0) { READDATA(s, a); }
-//template<typename Stream> inline void Unserialize(Stream& s, unsigned long& a,  int, int=0) { READDATA(s, a); }
 template<typename Stream> inline void Unserialize(Stream& s, int64_t& a,          int, int=0) { READDATA(s, a); }
 template<typename Stream> inline void Unserialize(Stream& s, uint64_t& a,         int, int=0) { READDATA(s, a); }
 template<typename Stream> inline void Unserialize(Stream& s, float& a,          int, int=0) { READDATA(s, a); }
@@ -175,7 +169,6 @@ template<typename Stream> inline void Unserialize(Stream& s, double& a,         
 inline unsigned int GetSerializeSize(bool a, int, int=0)                          { return sizeof(char); }
 template<typename Stream> inline void Serialize(Stream& s, bool a, int, int=0)    { char f=a; WRITEDATA(s, f); }
 template<typename Stream> inline void Unserialize(Stream& s, bool& a, int, int=0) { char f; READDATA(s, f); a=f; }
-
 
 #ifndef THROW_WITH_STACKTRACE
 #define THROW_WITH_STACKTRACE(exception)  \
@@ -710,8 +703,6 @@ void Unserialize(Stream& is, boost::tuple<T0, T1, T2, T3>& item, int nType, int 
     Unserialize(is, boost::get<3>(item), nType, nVersion);
 }
 
-
-
 //
 // map
 //
@@ -746,8 +737,6 @@ void Unserialize(Stream& is, std::map<K, T, Pred, A>& m, int nType, int nVersion
     }
 }
 
-
-
 //
 // set
 //
@@ -781,8 +770,6 @@ void Unserialize(Stream& is, std::set<K, Pred, A>& m, int nType, int nVersion)
         it = m.insert(it, key);
     }
 }
-
-
 
 //
 // Support for IMPLEMENT_SERIALIZE and READWRITE macro
@@ -1003,7 +990,6 @@ public:
         return true;
     }
 
-
     //
     // Stream subset
     //
@@ -1162,7 +1148,6 @@ public:
     FILE** operator&()          { return &file; }
     FILE* operator=(FILE* pnew) { return file = pnew; }
     bool operator!()            { return (file == NULL); }
-
 
     //
     // Stream subset

@@ -282,9 +282,6 @@ std::string HelpMessage()
         "  -logtimestamps          " + _("Prepend debug output with timestamp (default: 1)") + "\n" +
         "  -shrinkdebugfile       " + _("Shrink debug.log file on client startup (default: 1 when no -debug)") + "\n" +
         "  -printtoconsole        " + _("Send trace/debug info to console instead of debug.log file") + "\n" +
-#ifdef WIN32
-        "  -printtodebugger       " + _("Send trace/debug info to debugger") + "\n" +
-#endif
         "  -rpcuser=<user>        " + _("Username for JSON-RPC connections") + "\n" +
         "  -rpcpassword=<pw>      " + _("Password for JSON-RPC connections") + "\n" +
         "  -rpcport=<port>        " + _("Listen for JSON-RPC connections on <port> (default: 18776 or testnet: 28776)") + "\n" +
@@ -457,7 +454,6 @@ bool AppInit2()
     fServer = true;
 #endif
     fPrintToConsole = GetBoolArg("-printtoconsole");
-    fPrintToDebugger = GetBoolArg("-printtodebugger");
     fLogTimestamps = GetBoolArg("-logtimestamps", true);
 
     if (mapArgs.count("-timeout"))
@@ -586,7 +582,7 @@ bool AppInit2()
            if (nSplitThreshold > MAX_SPLIT_AMOUNT) 
                nSplitThreshold = MAX_SPLIT_AMOUNT; 
        } 
-       printf("splitthreshold set to %" PRId64 "\n", nSplitThreshold / 1000000); 
+       printf("splitthreshold set to %" PRId64 "\n", nSplitThreshold / 1000000);
     } 
 
     // ********************************************************* Step 6: network initialization

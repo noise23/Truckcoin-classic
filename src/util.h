@@ -32,7 +32,6 @@
 static const int64_t COIN = 1000000;
 static const int64_t CENT = 10000;
 
-// #define loop                for (;;)
 #define BEGIN(a)            ((char*)&(a))
 #define END(a)              ((char*)&((&(a))[1]))
 #define UBEGIN(a)           ((unsigned char*)&(a))
@@ -106,7 +105,7 @@ extern std::map<std::string, std::vector<std::string> > mapMultiArgs;
 extern bool fDebug;
 extern bool fDebugNet;
 extern bool fPrintToConsole;
-extern bool fPrintToDebugger;
+extern bool fPrintToDebugLog;
 extern bool fRequestShutdown;
 extern bool fShutdown;
 extern bool fDaemon;
@@ -323,7 +322,6 @@ inline std::string DateTimeStrFormat(int64_t nTime)
 {
     return DateTimeStrFormat(strTimestampFormat.c_str(), nTime);
 }
-
 
 template<typename T>
 void skipspaces(T& it)

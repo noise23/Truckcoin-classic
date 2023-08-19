@@ -105,9 +105,9 @@ public:
         nMasterKeyMaxID = 0;
         pwalletdbEncryption = NULL;
         nOrderPosNext = 0;
-		fWalletUnlockMintOnly = false;
-		fSplitBlock = false;
-		nHashDrift = 60;
+        fWalletUnlockMintOnly = false;
+        fSplitBlock = false;
+        nHashDrift = 60;
     }
     CWallet(std::string strWalletFileIn)
     {
@@ -118,9 +118,9 @@ public:
         nMasterKeyMaxID = 0;
         pwalletdbEncryption = NULL;
         nOrderPosNext = 0;
-		fWalletUnlockMintOnly = false;
-		fSplitBlock = false;
-		nHashDrift = 60;		
+        fWalletUnlockMintOnly = false;
+        fSplitBlock = false;
+        nHashDrift = 60;		
     }
 
     std::map<uint256, CWalletTx> mapWallet;

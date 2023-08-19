@@ -1379,7 +1379,7 @@ public:
     void print() const
     {
         std::cout << "CBlock(hash="
-                  << GetHash().ToString().c_str() 
+                  << GetHash().ToString().c_str()
                   << " ver = " << nVersion
                   << " hashPrevBlock = " << hashPrevBlock.ToString().c_str()
                   << " hasMerkleRoot = " << hashMerkleRoot.ToString().c_str()

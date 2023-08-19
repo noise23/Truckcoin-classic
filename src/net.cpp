@@ -1308,20 +1308,9 @@ void ThreadDNSAddressSeed2(void* parg)
     printf("%d addresses found from DNS seeds\n", found);
 }
 
-
-
-
-
-
-
-
-
-
-
-
 unsigned int pnSeed[] =
 {
-	0x68FF4383, 0x6C3D125B, 0x45C5A17A,
+//	0x68FF4383, 0x6C3D125B, 0x45C5A17A,
 };
 
 void DumpAddresses()
