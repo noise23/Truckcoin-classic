@@ -896,7 +896,7 @@ uint256 WantedByOrphan(const CBlock* pblockOrphan)
 
 int generateMTRandom(unsigned int s, int range)
 {
-	random::mt19937 gen(s);
+    random::mt19937 gen(s);
     random::uniform_int_distribution<> dist(0, range);
     return dist(gen);
 }
@@ -906,51 +906,51 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees, uint256 prevHash)
 {
     int64_t nSubsidy = 500 * COIN;
 
-	if(nHeight == 1)
-	{
-		nSubsidy = 120000 * COIN;
-		return nSubsidy + nFees;
-	}
+    if(nHeight == 1)
+    {
+        nSubsidy = 120000 * COIN;
+        return nSubsidy + nFees;
+    }
 
     return nSubsidy + nFees;
 }
 
 int64_t GetProofOfStakeReward(int64_t nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight, bool bCoinYearOnly)
 {
-	int64_t nSubsidy = 0;
+    int64_t nSubsidy = 0;
 
-	if ( nTime > FIXED_REWARD_SWITCH_TIME )
-	{
-		nSubsidy = 20 * COIN;
+    if ( nTime > FIXED_REWARD_SWITCH_TIME )
+    {
+        nSubsidy = 20 * COIN;
 
-		if(bCoinYearOnly)
-		return nSubsidy / 1000000;		
-	}
-	else if ( nTime > FORK_TIME2 )
-		nSubsidy = GetProofOfStakeRewardV3(nCoinAge, nBits, nTime, nHeight, bCoinYearOnly);
-	else if ( nTime > FORK_TIME )
-		nSubsidy = GetProofOfStakeRewardV2(nCoinAge, nBits, nTime, nHeight, bCoinYearOnly);
-	else
-		nSubsidy = GetProofOfStakeRewardV1(nCoinAge, nBits, nTime, nHeight, bCoinYearOnly);
-		
-	return nSubsidy;
-}	
+        if(bCoinYearOnly)
+        return nSubsidy / 1000000;		
+    }
+    else if ( nTime > FORK_TIME2 )
+        nSubsidy = GetProofOfStakeRewardV3(nCoinAge, nBits, nTime, nHeight, bCoinYearOnly);
+    else if ( nTime > FORK_TIME )
+        nSubsidy = GetProofOfStakeRewardV2(nCoinAge, nBits, nTime, nHeight, bCoinYearOnly);
+    else
+        nSubsidy = GetProofOfStakeRewardV1(nCoinAge, nBits, nTime, nHeight, bCoinYearOnly);
+
+    return nSubsidy;
+}
 
 int64_t GetProofOfStakeRewardV1(int64_t nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight, bool bCoinYearOnly)
 {
     int64_t nRewardCoinYear;
 
-	nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
+    nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
 
 // miner's coin stake reward based on nBits and coin age spent (coin-days)
 // simple algorithm, not depend on the diff
-	
+
     int64_t nSubsidy = nCoinAge * nRewardCoinYear / 365;
-	
+
     if(bCoinYearOnly)
     return nRewardCoinYear / CENT;
 
-	if (fDebug && GetBoolArg("-printcreation"))
+    if (fDebug && GetBoolArg("-printcreation"))
         printf("GetProofOfStakeReward(): create=%s nCoinAge=%" PRId64 " nBits=%d\n", FormatMoney(nSubsidy).c_str(), nCoinAge, nBits);
     return nSubsidy;
 }
@@ -1006,32 +1006,32 @@ int64_t GetProofOfStakeRewardV2(int64_t nCoinAge, unsigned int nBits, unsigned i
 int64_t GetProofOfStakeRewardV3(int64_t nCoinAge, unsigned int nBits, unsigned int nTime, int nHeight, bool bCoinYearOnly)
 {
     int64_t nRewardCoinYear;
-	int64_t nSubsidyLimit = 0;
-	
-	if ( nTime > 1596240000 ) // Saturday, 1 August 2020 00:00:00 GMT
-		nSubsidyLimit = 50 * COIN;
-	else if ( nTime > 1585699200 ) // Wednesday, 1 April 2020 00:00:00 GMT
-		nSubsidyLimit = 100 * COIN;
-	else if ( nTime > 1577836800 ) // Wednesday, 1 January 2020 00:00:00 GMT
-		nSubsidyLimit = 150 * COIN;
-	else
-		nSubsidyLimit = 200 * COIN;
+    int64_t nSubsidyLimit = 0;
 
-	nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
+    if ( nTime > 1596240000 ) // Saturday, 1 August 2020 00:00:00 GMT
+        nSubsidyLimit = 50 * COIN;
+    else if ( nTime > 1585699200 ) // Wednesday, 1 April 2020 00:00:00 GMT
+        nSubsidyLimit = 100 * COIN;
+    else if ( nTime > 1577836800 ) // Wednesday, 1 January 2020 00:00:00 GMT
+        nSubsidyLimit = 150 * COIN;
+    else
+        nSubsidyLimit = 200 * COIN;
+
+    nRewardCoinYear = MAX_MINT_PROOF_OF_STAKE;
 
 // miner's coin stake reward based on nBits and coin age spent (coin-days)
 // simple algorithm, not depend on the diff
-	
+
     int64_t nSubsidy = (nCoinAge * 33 * nRewardCoinYear) / (365 * 33 + 8);
-	
+
     if(bCoinYearOnly)
     return nSubsidyLimit / 1000000;
 
-	if (fDebug && GetBoolArg("-printcreation"))
+    if (fDebug && GetBoolArg("-printcreation"))
         printf("GetProofOfStakeReward(): create=%s nCoinAge=%" PRId64 " nBits=%d\n", FormatMoney(nSubsidy).c_str(), nCoinAge, nBits);
-		
+
     nSubsidy = min(nSubsidy, nSubsidyLimit);
-		
+
     return nSubsidy;
 }
 
@@ -1105,16 +1105,16 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
         return bnTargetLimit.GetCompact(); // second block
 
     int64_t nActualSpacing = pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime();
-	if(nActualSpacing < 0)
-	{
-		// printf(">> nActualSpacing = %" PRId64 " corrected to 1.\n", nActualSpacing);
-		nActualSpacing = 1;
-	}
-	else if(nActualSpacing > nTargetTimespan)
-	{
-		// printf(">> nActualSpacing = %" PRId64 " corrected to nTargetTimespan (900).\n", nActualSpacing);
-		nActualSpacing = nTargetTimespan;
-	}
+    if(nActualSpacing < 0)
+    {
+        // printf(">> nActualSpacing = %" PRId64 " corrected to 1.\n", nActualSpacing);
+        nActualSpacing = 1;
+    }
+    else if(nActualSpacing > nTargetTimespan)
+    {
+        // printf(">> nActualSpacing = %" PRId64 " corrected to nTargetTimespan (900).\n", nActualSpacing);
+        nActualSpacing = nTargetTimespan;
+    }
 
     // target change every block
     // retarget with exponential moving toward target spacing
@@ -1125,13 +1125,13 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
     int64_t nInterval = nTargetTimespan / nTargetSpacing;
     bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
     bnNew /= ((nInterval + 1) * nTargetSpacing);
-	
-	/*
-	printf(">> Height = %d, fProofOfStake = %d, nInterval = %" PRId64 ", nTargetSpacing = %" PRId64 ", nActualSpacing = %" PRId64 "\n", 
-		pindexPrev->nHeight, fProofOfStake, nInterval, nTargetSpacing, nActualSpacing);  
-	printf(">> pindexPrev->GetBlockTime() = %" PRId64 ", pindexPrev->nHeight = %d, pindexPrevPrev->GetBlockTime() = %" PRId64 ", pindexPrevPrev->nHeight = %d\n", 
-		pindexPrev->GetBlockTime(), pindexPrev->nHeight, pindexPrevPrev->GetBlockTime(), pindexPrevPrev->nHeight);  
-	*/
+
+    /*
+    printf(">> Height = %d, fProofOfStake = %d, nInterval = %" PRId64 ", nTargetSpacing = %" PRId64 ", nActualSpacing = %" PRId64 "\n", 
+        pindexPrev->nHeight, fProofOfStake, nInterval, nTargetSpacing, nActualSpacing);  
+    printf(">> pindexPrev->GetBlockTime() = %" PRId64 ", pindexPrev->nHeight = %d, pindexPrevPrev->GetBlockTime() = %" PRId64 ", pindexPrevPrev->nHeight = %d\n", 
+        pindexPrev->GetBlockTime(), pindexPrev->nHeight, pindexPrevPrev->GetBlockTime(), pindexPrevPrev->nHeight);  
+    */
 
     if (bnNew > bnTargetLimit)
         bnNew = bnTargetLimit;
@@ -1631,15 +1631,15 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
             return error("ConnectBlock() : UpdateTxIndex failed");
     }
 
-	uint256 prevHash = 0;
-	if(pindex->pprev)
-	{
-		prevHash = pindex->pprev->GetBlockHash();
-		// printf("==> Got prevHash = %s\n", prevHash.ToString().c_str());
-	}
+    uint256 prevHash = 0;
+    if(pindex->pprev)
+    {
+        prevHash = pindex->pprev->GetBlockHash();
+        // printf("==> Got prevHash = %s\n", prevHash.ToString().c_str());
+    }
 
-	if (vtx[0].GetValueOut() > GetProofOfWorkReward(pindex->nHeight, nFees, prevHash))
-		return false;
+    if (vtx[0].GetValueOut() > GetProofOfWorkReward(pindex->nHeight, nFees, prevHash))
+        return false;
 
     // Update block index on disk without changing it in memory.
     // The memory index structure will be changed after the db commits.
@@ -2236,8 +2236,8 @@ bool CBlockIndex::IsSuperMajority(int minVersion, const CBlockIndex* pstart, uns
 
 bool ProcessBlock(CNode* pfrom, CBlock* pblock)
 {
-	std::string strErr = "";
-	return ProcessBlock(pfrom, pblock, strErr);
+    std::string strErr = "";
+    return ProcessBlock(pfrom, pblock, strErr);
 }
 
 bool ProcessBlock(CNode* pfrom, CBlock* pblock, std::string& strErr)
@@ -2253,22 +2253,22 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock, std::string& strErr)
     // Limited duplicity on stake: prevents block flood attack
     // Duplicate stake allowed only when there is orphan child block
     if (pblock->IsProofOfStake() && setStakeSeen.count(pblock->GetProofOfStake()) && !mapOrphanBlocksByPrev.count(hash) && !Checkpoints::WantedByPendingSyncCheckpoint(hash))
-	{
-		if(mapBlockIndex.count(pblock->hashPrevBlock))
-		{
-			// presstab - HyperStake
-			// when bootstrapping, it is common for orphans to be in the bootstrap that will trigger the stakeseen requirement above. 
-			// if the previous block that should be orphaned is not removed from setStakeSeen then a reorg will not happen as it should
-			setStakeSeen.erase(pblock->GetProofOfStake());
-			
-			//send a reorg signal that is handled in LoadExternalBlockFile()
-			strErr = "reorg";
-			
-			return false;
-		}
-		
-		return error("ProcessBlock() : duplicate proof-of-stake (%s, %d) for block %s", pblock->GetProofOfStake().first.ToString().c_str(), pblock->GetProofOfStake().second, hash.ToString().c_str());
-	}
+    {
+        if(mapBlockIndex.count(pblock->hashPrevBlock))
+        {
+            // presstab - HyperStake
+            // when bootstrapping, it is common for orphans to be in the bootstrap that will trigger the stakeseen requirement above. 
+            // if the previous block that should be orphaned is not removed from setStakeSeen then a reorg will not happen as it should
+            setStakeSeen.erase(pblock->GetProofOfStake());
+
+            //send a reorg signal that is handled in LoadExternalBlockFile()
+            strErr = "reorg";
+
+            return false;
+        }
+
+        return error("ProcessBlock() : duplicate proof-of-stake (%s, %d) for block %s", pblock->GetProofOfStake().first.ToString().c_str(), pblock->GetProofOfStake().second, hash.ToString().c_str());
+    }
 
     // Preliminary checks
     if (!pblock->CheckBlock())
@@ -2296,7 +2296,7 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock, std::string& strErr)
         bnNewBlock.SetCompact(pblock->nBits);
         CBigNum bnRequired;
 
-		if (pblock->IsProofOfStake())
+        if (pblock->IsProofOfStake())
             bnRequired.SetCompact(ComputeMinStake(GetLastBlockIndex(pcheckpoint, true)->nBits, deltaTime, pblock->nTime));
         else
             bnRequired.SetCompact(ComputeMinWork(GetLastBlockIndex(pcheckpoint, false)->nBits, deltaTime));
@@ -2327,7 +2327,7 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock, std::string& strErr)
             else
                 setStakeSeenOrphan.insert(pblock->GetProofOfStake());
         }
-		CBlock* pblock2 = new CBlock(*pblock);
+        CBlock* pblock2 = new CBlock(*pblock);
         mapOrphanBlocks.insert(make_pair(hash, pblock2));
         mapOrphanBlocksByPrev.insert(make_pair(pblock2->hashPrevBlock, pblock2));
 
@@ -2478,13 +2478,13 @@ bool CheckDiskSpace(uint64_t nAdditionalBytes)
 
 static boost::filesystem::path BlockFilePath(unsigned int nFile)
 {
-    string strBlockFn = strprintf("blk%04u.dat", nFile);
+    string strBlockFn = strprintf("blk%05u.dat", nFile);
     return GetDataDir() / "blocks" / strBlockFn;
 }
 
 FILE* OpenBlockFile(unsigned int nFile, unsigned int nBlockPos, const char* pszMode)
 {
-    if ((nFile < 1) || (nFile == (unsigned int) -1))
+    if (nFile == (unsigned int) -1)
         return NULL;
     FILE* file = fopen(BlockFilePath(nFile).string().c_str(), pszMode);
     if (!file)
@@ -2500,7 +2500,7 @@ FILE* OpenBlockFile(unsigned int nFile, unsigned int nBlockPos, const char* pszM
     return file;
 }
 
-static unsigned int nCurrentBlockFile = 1;
+static unsigned int nCurrentBlockFile = 0;
 
 FILE* AppendBlockFile(unsigned int& nFileRet)
 {
@@ -2595,7 +2595,7 @@ bool LoadBlockIndex(bool fAllowNew)
         printf("block.nNonce = %u \n", block.nNonce);
 
         assert(block.hashMerkleRoot == uint256("37ad323037e6e55553fadebbe60690a1bff2752f947b7af8cb6b54929f5fee3d"));
-		assert(block.GetHash() == (!fTestNet ? hashGenesisBlock : hashGenesisBlockTestNet));
+        assert(block.GetHash() == (!fTestNet ? hashGenesisBlock : hashGenesisBlockTestNet));
 
         // Start new block file
         unsigned int nFile;
@@ -2707,7 +2707,7 @@ bool LoadExternalBlockFile(FILE* fileIn)
     int64_t nStart = GetTimeMillis();
 
     int nLoaded = 0;
-	int nStartHeight = nBestHeight;
+    int nStartHeight = nBestHeight;
     {
         LOCK(cs_main);
         try {
@@ -2717,7 +2717,7 @@ bool LoadExternalBlockFile(FILE* fileIn)
             {
                 unsigned char pchData[65536];
                 do 
-				{
+                {
                     fseek(blkdat, nPos, SEEK_SET);
                     int nRead = fread(pchData, 1, sizeof(pchData), blkdat);
                     if (nRead <= 8)
@@ -2747,32 +2747,32 @@ bool LoadExternalBlockFile(FILE* fileIn)
                 {
                     CBlock block;
                     blkdat >> block;
-					
-					// no reason to partially scan every block we have just to print to log that we have it
-					if(nLoaded < nStartHeight)
-					{
-						nLoaded++;
-						nPos += 4 + nSize;
-					}
-					else
-					{
-						std::string strErr = "";
-						bool fProcessed = ProcessBlock(NULL,&block, strErr);
-						if (fProcessed)
-						{
-							nLoaded++;
-							nPos += 4 + nSize;
-						}
-						else if (strErr == "reorg")
-						{
-							fProcessed = ProcessBlock(NULL,&block, strErr);
-							if (fProcessed)
-							{
-								nLoaded++;
-								nPos += 4 + nSize;
-							}
-						}
-					}
+
+                    // no reason to partially scan every block we have just to print to log that we have it
+                    if(nLoaded < nStartHeight)
+                    {
+                        nLoaded++;
+                        nPos += 4 + nSize;
+                    }
+                    else
+                    {
+                        std::string strErr = "";
+                        bool fProcessed = ProcessBlock(NULL,&block, strErr);
+                        if (fProcessed)
+                        {
+                            nLoaded++;
+                            nPos += 4 + nSize;
+                        }
+                        else if (strErr == "reorg")
+                        {
+                            fProcessed = ProcessBlock(NULL,&block, strErr);
+                            if (fProcessed)
+                            {
+                                nLoaded++;
+                                nPos += 4 + nSize;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -3343,7 +3343,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 
         CInv inv(MSG_TX, tx.GetHash());
         pfrom->AddInventoryKnown(inv);
-		
+
         bool fMissingInputs = false;
         if (tx.AcceptToMemoryPool(txdb, true, &fMissingInputs))
         {
@@ -3497,7 +3497,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
                 // This isn't a Misbehaving(100) (immediate ban) because the
                 // peer might be an older or different implementation with
                 // a different signature key, etc.
-				if(!alert.CheckSignature())
+                if(!alert.CheckSignature())
                 pfrom->Misbehaving(10);
             }
         }
@@ -3781,7 +3781,6 @@ bool SendMessages(CNode *pto, bool fSendTrickle) {
         }
         if (!vInv.empty())
             pto->PushMessage("inv", vInv);
-
 
         //
         // Message: getdata
