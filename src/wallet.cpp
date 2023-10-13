@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2012 The Bitcoin developers
-// Copyright (c) 2013-2019 The Truckcoin developers
+// Copyright (c) 2013-2024 The Truckcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -1487,7 +1487,7 @@ bool CWallet::GetStakeWeight(const CKeyStore& keystore, uint64_t& nMinWeight, ui
 }
 
 //This is added for informational purposes since staking takes 9.1 days min approx. because of bug
-bool CWallet::GetStakeWeight2(const CKeyStore& keystore, uint64_t& nMinWeight, uint64_t& nMaxWeight, uint64_t& nWeight)
+bool CWallet::GetStakeWeight2(const CKeyStore& keystore, uint64_t& nMinWeight, uint64_t& nMaxWeight, uint64_t& nWeight, uint64_t& nHoursToMaturity)
 {
     // Choose coins to use
     int64_t nBalance = GetBalance();
@@ -1508,6 +1508,10 @@ bool CWallet::GetStakeWeight2(const CKeyStore& keystore, uint64_t& nMinWeight, u
     if (setCoins.empty())
         return false;
 
+    // variables for next stake calculation
+    uint64_t nPrevAge = 0;
+    uint64_t nStakeAge = 60 * 60 * 24 * 88 / 10;
+
     CTxDB txdb("r");
     for (std::pair<const CWalletTx*, unsigned int> pcoin : setCoins)
     {
@@ -1518,8 +1522,20 @@ bool CWallet::GetStakeWeight2(const CKeyStore& keystore, uint64_t& nMinWeight, u
                 continue;
         }
 
+        // Time Until Next Maturity
+        uint64_t nCurrentAge = (int64_t)GetTime() - (int64_t)pcoin.first->nTime;
+        if (nCurrentAge > nPrevAge)
+        {
+            nPrevAge = nCurrentAge;
+            nHoursToMaturity = ((nStakeAge - nPrevAge) / 60 / 60) + 1;
+        }
+
         int64_t nTimeWeight = GetWeight2((int64_t)pcoin.first->nTime, (int64_t)GetTime());
         CBigNum bnCoinDayWeight = CBigNum(pcoin.first->vout[pcoin.second].nValue) * nTimeWeight / COIN / (24 * 60 * 60);
+
+        // if the age is less than 8.8 days, report weight as 0 because the stake modifier won't allow for stake yet
+        if ((nStakeAge - nCurrentAge) < (60*60*24*8.8))
+            bnCoinDayWeight = 0;
 
         // Weight is greater than zero
         if (nTimeWeight > 0)

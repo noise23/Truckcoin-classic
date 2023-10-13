@@ -173,7 +173,8 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     connect(timerMintingWeights, SIGNAL(timeout()), this, SLOT(updateMintingWeights()));
     // Set initial values for user and network weights
     nWeight = 0;
-	nNetworkWeight = 0;
+    nNetworkWeight = 0;
+    nHoursToMaturity = 0;
 
     // Progress bar and label for blocks download
     progressBarLabel = new QLabel();
@@ -209,17 +210,17 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     connect(openInfoAction, SIGNAL(triggered()), rpcConsole, SLOT(showTab_Info()));
     connect(openTrafficAction, SIGNAL(triggered()), rpcConsole, SLOT(showTab_Traffic()));
     connect(openRPCConsoleAction, SIGNAL(triggered()), rpcConsole, SLOT(showTab_Debug()));
-	
-	blockBrowser = new BlockBrowser(this);
+
+    blockBrowser = new BlockBrowser(this);
     connect(blockAction, SIGNAL(triggered()), blockBrowser, SLOT(show()));
 
     // Clicking on "Verify Message" in the address book sends you to the verify message tab
     connect(addressBookPage, SIGNAL(verifyMessage(QString)), this, SLOT(gotoVerifyMessageTab(QString)));
     // Clicking on "Sign Message" in the receive coins page sends you to the sign message tab
     connect(receiveCoinsPage, SIGNAL(signMessage(QString)), this, SLOT(gotoSignMessageTab(QString)));
-	
-	// Clicking on "Block Explorer" in the transaction page sends you to the blockbrowser
-	connect(transactionView, SIGNAL(blockBrowserSignal(QString)), this, SLOT(gotoBlockBrowser(QString)));
+
+    // Clicking on "Block Explorer" in the transaction page sends you to the blockbrowser
+    connect(transactionView, SIGNAL(blockBrowserSignal(QString)), this, SLOT(gotoBlockBrowser(QString)));
   
     gotoOverviewPage();
 }
@@ -1091,7 +1092,7 @@ void BitcoinGUI::backupWallet()
 #if QT_VERSION < 0x050000
     QString saveDir = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
 #else 
-	QString saveDir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation); 
+    QString saveDir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation); 
 #endif 
 
     QString filename = QFileDialog::getSaveFileName(this, tr("Backup Wallet"), saveDir, tr("Wallet Data (*.dat)"));
@@ -1306,29 +1307,32 @@ void BitcoinGUI::updateMintingIcon()
     }
     else if (!nWeight)
     {
-        labelMintingIcon->setToolTip(tr("Not minting because you don't have mature coins."));
+        labelMintingIcon->setToolTip(tr("Not minting because you don't have mature coins.<br>Next block matures in %2 hours<br>Network weight is %1").arg(nNetworkWeight).arg(nHoursToMaturity));
         labelMintingIcon->setEnabled(false);
     }
     else if (nLastCoinStakeSearchInterval)
     {
-        uint64_t nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight;
+        uint64_t nAccuracyAdjustment = 1; // this is a manual adjustment param if needed to make more accurate
+        uint64_t nEstimateTime = nStakeTargetSpacing * nNetworkWeight / nWeight / nAccuracyAdjustment;
 
+        uint64_t nRangeLow = nEstimateTime;
+        uint64_t nRangeHigh = nEstimateTime * 1.5;
         QString text;
         if (nEstimateTime < 60)
         {
-            text = tr("%n second(s)", "", nEstimateTime);
+            text = tr("%1 - %2 seconds").arg(nRangeLow).arg(nRangeHigh);
         }
         else if (nEstimateTime < 60*60)
         {
-            text = tr("%n minute(s)", "", nEstimateTime/60);
+            text = tr("%1 - %2 minutes").arg(nRangeLow / 60).arg(nRangeHigh / 60);
         }
         else if (nEstimateTime < 24*60*60)
         {
-            text = tr("%n hour(s)", "", nEstimateTime/(60*60));
+            text = tr("%1 - %2 hours").arg(nRangeLow / (60*60)).arg(nRangeHigh / (60*60));
         }
         else
         {
-            text = tr("%n day(s)", "", nEstimateTime/(60*60*24));
+            text = tr("%1 - %2 days").arg(nRangeLow / (60*60*24)).arg(nRangeHigh / (60*60*24));
         }
 
         labelMintingIcon->setEnabled(true);
@@ -1349,7 +1353,7 @@ void BitcoinGUI::updateMintingWeights()
         nWeight = 0;
 
         if (pwalletMain)
-            pwalletMain->GetStakeWeight2(*pwalletMain, nMinMax, nMinMax, nWeight);
+            pwalletMain->GetStakeWeight2(*pwalletMain, nMinMax, nMinMax, nWeight, nHoursToMaturity);
 
         nNetworkWeight = GetPoSKernelPS();
     }

@@ -93,10 +93,10 @@ private:
     QAction *toggleHideAction;
     QAction *exportAction;
     QAction *encryptWalletAction;
-	QAction *unlockWalletforposAction;
-	QAction *unlockWalletAction;
-	QAction *lockWalletAction;
-	QAction *checkWalletAction; 
+    QAction *unlockWalletforposAction;
+    QAction *unlockWalletAction;
+    QAction *lockWalletAction;
+    QAction *checkWalletAction; 
     QAction *repairWalletAction; 
     QAction *backupWalletAction;
     QAction *dumpWalletAction;
@@ -112,13 +112,14 @@ private:
     Notificator *notificator;
     TransactionView *transactionView;
     RPCConsole *rpcConsole;
-	BlockBrowser *blockBrowser;
+    BlockBrowser *blockBrowser;
 
     QMovie *syncIconMovie;
 
     uint64_t nMinMax;
     uint64_t nWeight;
     uint64_t nNetworkWeight;
+    uint64_t nHoursToMaturity;
 
     /** Create the main UI actions. */
     void createActions();
@@ -130,7 +131,7 @@ private:
     void createTrayIcon();
     /** Create system tray menu (or setup the dock menu) */ 
     void createTrayIconMenu(); 
-	
+
     void updateStyle();
     void writeDefaultStyleSheet(const QString &qssPath);
 
@@ -175,9 +176,9 @@ private slots:
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage();
-	
-	/** Show block explorer page */
-	void gotoBlockBrowser(QString transactionId = "");
+
+    /** Show block explorer page */
+    void gotoBlockBrowser(QString transactionId = "");
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
@@ -188,7 +189,7 @@ private slots:
     void optionsClicked();
     /** Show about dialog */
     void aboutClicked();
-	/** Allow user to unlock wallet from click */ 
+    /** Allow user to unlock wallet from click */ 
     void lockIconClicked(); 
 
 #ifndef Q_OS_MAC
@@ -217,9 +218,9 @@ private slots:
     void unlockWallet();
     /** Ask for passphrase to unlock wallet for the session to mint */ 
     void unlockWalletForMint(); 
-	/** Allow user to lock wallet */ 
+    /** Allow user to lock wallet */ 
     void lockWallet(); 
-	
+
     /** Enable/disable stake mining */
     void stakeMinerToggle(bool fInitial = false);
 
@@ -235,7 +236,7 @@ private slots:
     void updateMintingIcon();
     /** Update minting weight info */
     void updateMintingWeights();
-	
+
     void updateStyleSlot();
 };
 

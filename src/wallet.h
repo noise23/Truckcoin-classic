@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2012 The Bitcoin developers
-// Copyright (c) 2013-2019 The Truckcoin developers
+// Copyright (c) 2013-2024 The Truckcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #ifndef BITCOIN_WALLET_H
@@ -34,7 +34,6 @@ enum WalletFeature
 
     FEATURE_LATEST = 60000
 };
-
 
 /** A key pool entry */
 class CKeyPool
@@ -84,18 +83,18 @@ public:
 
     bool fFileBacked;
     std::string strWalletFile;
-	bool fWalletUnlockMintOnly;
-	bool fSplitBlock;
+    bool fWalletUnlockMintOnly;
+    bool fSplitBlock;
 
     std::set<int64_t> setKeyPool;
-	std::map<CKeyID, CKeyMetadata> mapKeyMetadata;
+    std::map<CKeyID, CKeyMetadata> mapKeyMetadata;
 
 
     typedef std::map<unsigned int, CMasterKey> MasterKeyMap;
     MasterKeyMap mapMasterKeys;
     unsigned int nMasterKeyMaxID;
-	
-	unsigned int nHashDrift;
+
+    unsigned int nHashDrift;
 
     CWallet()
     {
@@ -130,7 +129,7 @@ public:
     std::map<CTxDestination, std::string> mapAddressBook;
 
     CPubKey vchDefaultKey;
-	int64_t nTimeFirstKey;
+    int64_t nTimeFirstKey;
 
     // check whether we are allowed to upgrade (or already support) to the named feature
     bool CanSupportFeature(enum WalletFeature wf) { return nWalletMaxVersion >= wf; }
@@ -159,8 +158,8 @@ public:
     bool Unlock(const SecureString& strWalletPassphrase);
     bool ChangeWalletPassphrase(const SecureString& strOldWalletPassphrase, const SecureString& strNewWalletPassphrase);
     bool EncryptWallet(const SecureString& strWalletPassphrase);
-	
-	void GetKeyBirthTimes(std::map<CKeyID, int64_t> &mapKeyBirth) const;
+
+    void GetKeyBirthTimes(std::map<CKeyID, int64_t> &mapKeyBirth) const;
 
     /** Increment the next transaction order id
         @return next transaction order id
@@ -194,9 +193,9 @@ public:
     bool CreateTransaction(CScript scriptPubKey, int64_t nValue, CWalletTx& wtxNew, CReserveKey& reservekey, int64_t& nFeeRet, const CCoinControl *coinControl=NULL);
     bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey);
     bool GetStakeWeight(const CKeyStore& keystore, uint64_t& nMinWeight, uint64_t& nMaxWeight, uint64_t& nWeight);
-	bool GetStakeWeight2(const CKeyStore& keystore, uint64_t& nMinWeight, uint64_t& nMaxWeight, uint64_t& nWeight);
+    bool GetStakeWeight2(const CKeyStore& keystore, uint64_t& nMinWeight, uint64_t& nMaxWeight, uint64_t& nWeight, uint64_t& nHoursToMaturity);
     bool CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, CTransaction& txNew);
-	bool GetStakeWeightFromValue(const int64_t& nTime, const int64_t& nValue, uint64_t& nWeight);
+    bool GetStakeWeightFromValue(const int64_t& nTime, const int64_t& nValue, uint64_t& nWeight);
     std::string SendMoney(CScript scriptPubKey, int64_t nValue, CWalletTx& wtxNew, bool fAskFee=false);
     std::string SendMoneyToDestination(const CTxDestination &address, int64_t nValue, CWalletTx& wtxNew, bool fAskFee=false);
 
@@ -355,7 +354,6 @@ public:
     void KeepKey();
 };
 
-
 typedef std::map<std::string, std::string> mapValue_t;
 
 
@@ -369,14 +367,12 @@ static void ReadOrderPos(int64_t& nOrderPos, mapValue_t& mapValue)
     nOrderPos = atoi64(mapValue["n"].c_str());
 }
 
-
 static void WriteOrderPos(const int64_t& nOrderPos, mapValue_t& mapValue)
 {
     if (nOrderPos == -1)
         return;
     mapValue["n"] = i64tostr(nOrderPos);
 }
-
 
 /** A transaction with a bunch of additional info that only the owner cares about.
  * It includes any unrecorded transactions needed to link it back to the block chain.
@@ -627,7 +623,6 @@ public:
         return nCredit;
     }
 
-
     int64_t GetChange() const
     {
         if (fChangeCached)
@@ -705,9 +700,6 @@ public:
     void RelayWalletTransaction();
 };
 
-
-
-
 class COutput
 {
 public:
@@ -730,9 +722,6 @@ public:
         printf("%s\n", ToString().c_str());
     }
 };
-
-
-
 
 /** Private key that includes an expiration date in case it never gets used. */
 class CWalletKey
@@ -762,11 +751,6 @@ public:
     )
 };
 
-
-
-
-
-
 /** Account information.
  * Stored in wallet with key "acc"+string account name.
  */
@@ -792,8 +776,6 @@ public:
         READWRITE(vchPubKey);
     )
 };
-
-
 
 /** Internal transfers.
  * Database key is acentry<account><counter>.
