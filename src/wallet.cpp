@@ -1248,6 +1248,27 @@ bool CWallet::SelectStakeCoins(std::set<std::pair<const CWalletTx*,unsigned int>
     return true;
 }
 
+bool CWallet::MintableCoins()
+{
+    // check for reservebalance
+    int64_t nBalance = GetBalance();
+    int64_t nReserveBalance = 0;
+    if (mapArgs.count("-reservebalance") && !ParseMoney(mapArgs["-reservebalance"], nReserveBalance))
+        return error("MintableCoins() : invalid reserve balance amount");
+    if (nBalance <= nReserveBalance)
+        return false;
+
+    vector<COutput> vCoins;
+    AvailableCoins(vCoins, true);
+
+    for (const COutput& out : vCoins)
+    {
+        if(GetTime() - out.tx->GetTxTime() > (fTestNet? nStakeMinAge : nStakeMinAgeV2))
+            return true;
+    }
+    return false;
+}
+
 bool CWallet::SelectCoins(int64_t nTargetValue, unsigned int nSpendTime, set<pair<const CWalletTx*,unsigned int> >& setCoinsRet, int64_t& nValueRet, const CCoinControl* coinControl) const
 {
     vector<COutput> vCoins;
