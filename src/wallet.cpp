@@ -1228,6 +1228,26 @@ bool CWallet::SelectCoinsMinConf(int64_t nTargetValue, unsigned int nSpendTime, 
     return true;
 }
 
+bool CWallet::SelectStakeCoins(std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, int64_t nTargetAmount) const
+{
+    vector<COutput> vCoins;
+    AvailableCoins(vCoins, true);
+    int64_t nAmountSelected = 0;
+
+    for (const COutput& out : vCoins)
+    {
+        if(nAmountSelected + out.tx->vout[out.i].nValue < nTargetAmount)
+        {
+            if(GetTime() - out.tx->GetTxTime() > nStakeMinAgeV2)
+            {
+                setCoins.insert(make_pair(out.tx, out.i));
+                nAmountSelected += out.tx->vout[out.i].nValue;
+            }
+        }
+    }
+    return true;
+}
+
 bool CWallet::SelectCoins(int64_t nTargetValue, unsigned int nSpendTime, set<pair<const CWalletTx*,unsigned int> >& setCoinsRet, int64_t& nValueRet, const CCoinControl* coinControl) const
 {
     vector<COutput> vCoins;
@@ -1585,8 +1605,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
     set<pair<const CWalletTx*,unsigned int> > setCoins;
     vector<const CWalletTx*> vwtxPrev;
-    int64_t nValueIn = 0;
-    if (!SelectCoins(nBalance - nReserveBalance, txNew.nTime, setCoins, nValueIn))
+
+    if (!SelectStakeCoins(setCoins, nBalance - nReserveBalance))
         return false;
 
     if (setCoins.empty())
