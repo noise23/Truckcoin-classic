@@ -1,6 +1,6 @@
 // Copyright (c) 2010 Satoshi Nakamoto
 // Copyright (c) 2009-2012 The Bitcoin developers
-// Copyright (c) 2013-2019 The Truckcoin developers
+// Copyright (c) 2013-2024 The Truckcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -120,8 +120,6 @@ std::string HexBits(unsigned int nBits)
     return HexStr(BEGIN(uBits.cBits), END(uBits.cBits));
 }
 
-
-
 ///
 /// Note: This interface may still be subject to change.
 ///
@@ -179,14 +177,12 @@ Value help(const Array& params, bool fHelp)
 
 Value stop(const Array& params, bool fHelp)
 {
+    // Accept the deprecated and ignored 'detach´ boolean argument
     if (fHelp || params.size() > 1)
         throw runtime_error(
-            "stop <detach>\n"
-            "<detach> is true or false to detach the database or not for this stop only\n"
-            "Stop Truckcoin server (and possibly override the detachdb config value).");
+            "stop\n"
+            "Stop Truckcoin server.");
     // Shutdown will take long enough that the response should get back
-    if (params.size() > 0)
-        bitdb.SetDetach(params[0].get_bool());
     StartShutdown();
     return "Truckcoin server stopping";
 }
@@ -1095,7 +1091,6 @@ json_spirit::Value CRPCTable::execute(const std::string &strMethod, const json_s
     }
 }
 
-
 Object CallRPC(const string& strMethod, const Array& params)
 {
     if (mapArgs["-rpcuser"] == "" && mapArgs["-rpcpassword"] == "")
@@ -1152,9 +1147,6 @@ Object CallRPC(const string& strMethod, const Array& params)
 
     return reply;
 }
-
-
-
 
 template<typename T>
 void ConvertTo(Value& value, bool fAllowNull=false)
@@ -1230,7 +1222,7 @@ Array RPCConvertValues(const std::string &strMethod, const std::vector<std::stri
     if (strMethod == "createrawtransaction"   && n > 1) ConvertTo<Object>(params[1]);
     if (strMethod == "signrawtransaction"     && n > 1) ConvertTo<Array>(params[1], true);
     if (strMethod == "signrawtransaction"     && n > 2) ConvertTo<Array>(params[2], true);
-	if (strMethod == "sendalert"              && n > 2) ConvertTo<int64_t>(params[2]);
+    if (strMethod == "sendalert"              && n > 2) ConvertTo<int64_t>(params[2]);
     if (strMethod == "sendalert"              && n > 3) ConvertTo<int64_t>(params[3]);
     if (strMethod == "sendalert"              && n > 4) ConvertTo<int64_t>(params[4]);
     if (strMethod == "sendalert"              && n > 5) ConvertTo<int64_t>(params[5]);
@@ -1303,9 +1295,6 @@ int CommandLineRPC(int argc, char *argv[])
     }
     return nRet;
 }
-
-
-
 
 #ifdef TEST
 int main(int argc, char *argv[])

@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2012 The Bitcoin developers
-// Copyright (c) 2013-2019 The Truckcoin developers
+// Copyright (c) 2013-2024 The Truckcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #ifndef BITCOIN_DB_H
@@ -35,7 +35,6 @@ bool ImportWallet(CWallet* pwallet, const std::string& strLocation);
 class CDBEnv
 {
 private:
-    bool fDetachDB;
     bool fDbEnvInit;
     bool fMockDb;
     boost::filesystem::path pathEnv;
@@ -76,8 +75,6 @@ public:
     void Close();
     void Flush(bool fShutdown);
     void CheckpointLSN(std::string strFile);
-    void SetDetach(bool fDetachDB_) { fDetachDB = fDetachDB_; }
-    bool GetDetach() { return fDetachDB; }
 
     void CloseDb(const std::string& strFile);
     bool RemoveDb(const std::string& strFile);

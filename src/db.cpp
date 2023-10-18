@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2012 The Bitcoin developers
-// Copyright (c) 2013-2019 The Truckcoin developers
+// Copyright (c) 2013-2024 The Truckcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -204,7 +204,6 @@ bool CDBEnv::Salvage(std::string strFile, bool fAggressive,
     return (result == 0);
 }
 
-
 void CDBEnv::CheckpointLSN(std::string strFile)
 {
     dbenv.txn_checkpoint(0, 0, 0);
@@ -212,7 +211,6 @@ void CDBEnv::CheckpointLSN(std::string strFile)
         return;
     dbenv.lsn_reset(strFile.c_str(), 0);
 }
-
 
 CDB::CDB(const char *pszFile, const char* pszMode) :
     pdb(NULL), activeTxn(NULL)
@@ -277,14 +275,6 @@ CDB::CDB(const char *pszFile, const char* pszMode) :
     }
 }
 
-static bool IsChainFile(std::string strFile)
-{
-    if (strFile == "blkindex.dat")
-        return true;
-
-    return false;
-}
-
 void CDB::Close()
 {
     if (!pdb)
@@ -298,10 +288,6 @@ void CDB::Close()
     unsigned int nMinutes = 0;
     if (fReadOnly)
         nMinutes = 1;
-    if (IsChainFile(strFile))
-        nMinutes = 2;
-    if (IsChainFile(strFile) && IsInitialBlockDownload())
-        nMinutes = 5;
 
     bitdb.dbenv.txn_checkpoint(nMinutes ? GetArg("-dblogsize", 100)*1024 : 0, nMinutes, 0);
 
@@ -428,7 +414,6 @@ bool CDB::Rewrite(const string& strFile, const char* pszSkip)
     return false;
 }
 
-
 void CDBEnv::Flush(bool fShutdown)
 {
     int64_t nStart = GetTimeMillis();
@@ -451,11 +436,9 @@ void CDBEnv::Flush(bool fShutdown)
                 CloseDb(strFile);
                 printf("%s checkpoint\n", strFile.c_str());
                 dbenv.txn_checkpoint(0, 0, 0);
-                if (!IsChainFile(strFile) || fDetachDB) {
-                    printf("%s detach\n", strFile.c_str());
-                    if (!fMockDb)
-                        dbenv.lsn_reset(strFile.c_str(), 0);
-                }
+                printf("%s detach\n", strFile.c_str());
+                if (!fMockDb)
+                    dbenv.lsn_reset(strFile.c_str(), 0);
                 printf("%s closed\n", strFile.c_str());
                 mapFileUseCount.erase(mi++);
             }
