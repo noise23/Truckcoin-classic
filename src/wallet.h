@@ -97,6 +97,7 @@ public:
     unsigned int nMasterKeyMaxID;
 
     unsigned int nHashDrift;
+    int nStakeSetUpdateTime;
 
     CWallet()
     {
@@ -109,6 +110,7 @@ public:
         fWalletUnlockMintOnly = false;
         fSplitBlock = false;
         nHashDrift = 60;
+        nStakeSetUpdateTime = 300; // 5 minutes
     }
     CWallet(std::string strWalletFileIn)
     {
@@ -121,7 +123,8 @@ public:
         nOrderPosNext = 0;
         fWalletUnlockMintOnly = false;
         fSplitBlock = false;
-        nHashDrift = 60;		
+        nHashDrift = 60;
+        nStakeSetUpdateTime = 300; // 5 minutes
     }
 
     std::map<uint256, CWalletTx> mapWallet;

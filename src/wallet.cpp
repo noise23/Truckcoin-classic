@@ -1624,18 +1624,26 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     if (nBalance <= nReserveBalance)
         return false;
 
-    set<pair<const CWalletTx*,unsigned int> > setCoins;
+    // presstab HyperStake - Initialize as static and don't update the set on every run of CreateCoinStake() in order to lighten resource use
+    static std::set<pair<const CWalletTx*,unsigned int> > setStakeCoins;
+    static int nLastStakeSetUpdate = 0;
+
+    if(GetTime() - nLastStakeSetUpdate > nStakeSetUpdateTime)
+    {
+        setStakeCoins.clear();
+        if (!SelectStakeCoins(setStakeCoins, nBalance - nReserveBalance))
+            return false;
+        nLastStakeSetUpdate = GetTime();
+    }
+
+    if (setStakeCoins.empty())
+        return false;
+
     vector<const CWalletTx*> vwtxPrev;
-
-    if (!SelectStakeCoins(setCoins, nBalance - nReserveBalance))
-        return false;
-
-    if (setCoins.empty())
-        return false;
 
     int64_t nCredit = 0;
     CScript scriptPubKeyKernel;
-    for (auto pcoin : setCoins)
+    for (auto pcoin : setStakeCoins)
     {
         CTxDB txdb("r");
         CTxIndex txindex;
@@ -1715,7 +1723,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     if (nCredit == 0 || nCredit > nBalance - nReserveBalance)
         return false;
 
-    for (auto pcoin : setCoins)
+    for (auto pcoin : setStakeCoins)
     {
         // Attempt to add more inputs
         // Only add coins of the same key/address as kernel
@@ -1793,6 +1801,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     }
 
     // Successfully generated coinstake
+    nLastStakeSetUpdate = 0; //this will trigger stake set to repopulate next round
     return true;
 }
 
