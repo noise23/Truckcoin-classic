@@ -8,7 +8,6 @@
 #include "net.h"
 #include "util.h"
 #include "init.h"
-#include "strlcpy.h"
 #include "addrman.h"
 #include "ui_interface.h"
 
